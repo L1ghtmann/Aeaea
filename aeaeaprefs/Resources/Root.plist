@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>items</key>
+    <array>
+	  	<dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>label</key>
+            <string></string>
+        </dict>
+	    <dict>
+		 	<key>cellClass</key>
+			<string>AeaeaRedditCell</string>
+			<key>label</key>
+			<string>Lightmann</string>
+			<key>accountName</key>
+			<string>_lightmann</string>
+		</dict>
+		<dict>
+          <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lightmann.aeaeaprefs</string>
+			<key>label</key>
+            <string>Enabled</string>
+            <key>key</key>
+            <string>isEnabled</string>
+            <key>PostNotification</key>
+			<string>me.lightmann.aeaeaprefs-updated</string>
+            <key>alternateColors</key>
+			<true/>
+        </dict>
+
+		<dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>label</key>
+            <string>Configuration</string>
+        </dict>
+		<dict>
+ 			<key>cell</key>
+ 			<string>PSLinkCell</string>
+ 			<key>label</key>
+ 			<string>Notifications</string>
+ 			<key>detail</key>
+ 			<string>AeaeaSubPrefsListController</string>
+ 			<key>AeaeaSub</key>
+ 			<string>Notifications</string>
+ 		</dict>
+		<dict>
+ 			<key>cell</key>
+ 			<string>PSLinkCell</string>
+ 			<key>label</key>
+ 			<string>Widgets</string>
+ 			<key>detail</key>
+ 			<string>AeaeaSubPrefsListController</string>
+ 			<key>AeaeaSub</key>
+ 			<string>Widgets</string>
+ 		</dict>
+
+		<dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>label</key>
+            <string></string>
+			<key>footerText</key>
+			<string>Aeaea by Lightmann</string>
+        </dict>
+		<dict>
+			<key>action</key>
+			<string>respring:</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Apply</string>
+		</dict>
+    </array>
+    <key>title</key>
+    <string></string>
+</dict>
+</plist>
