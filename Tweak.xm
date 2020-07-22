@@ -9,7 +9,7 @@
 #pragma mark Notifications
 
 //hides the contrasty background cell along with multiple icons showing up on LS when grouped; remains normal when ungrouped
-//Location code taken from https://github.com/Skittyblock/Pokebox
+//Location code taken from https://github.com/Skittyblock/Pokebox -- W appropriately attached license
 %hook NCNotificationListView
 -(void)setSubviewPerformingGroupingAnimation:(BOOL)arg1 {
     %orig;
@@ -528,7 +528,7 @@
 
 //hides the contrasty background cell along with multiple icons showing up on LS when grouped; remains normal when ungrouped
 //Yes, i know it's kinda jank, but the standard method using properties didn'y yield favorable results
-//Location code taken from https://github.com/Skittyblock/Pokebox
+//Location code taken from https://github.com/Skittyblock/Pokebox -- W appropriately attached license
 %hook NCNotificationShortLookView
 -(void)_configureBackgroundViewIfNecessary{
 	%orig;

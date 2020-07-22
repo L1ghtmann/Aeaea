@@ -1,7 +1,6 @@
-//By KritantaDev (https://github.com/kritantadev)
-#import "AeaeaTableCell.h"
+#import "KRTableCell.h"
 
-@interface AeaeaLinkCell : AeaeaTableCell
+@interface KRLinkCell : KRTableCell
 
 @property (nonatomic, readonly) BOOL isBig;
 
