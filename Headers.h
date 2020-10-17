@@ -1,11 +1,9 @@
 #import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
 
-// 			UNIVERSAL 			//
-
+//Universal
 @interface UIView (Private)
-- (UIViewController *)_viewControllerForAncestor; //notifs 
--(void)setOverrideUserInterfaceStyle; //for widgets (iOS 13+)
+-(id)_viewControllerForAncestor; //used for notif position check 
 @end
 
 @interface MTMaterialView : UIView
@@ -25,8 +23,7 @@
 static BOOL isEnabled;
 
 
-// 			NOTIFICATIONS 			//
-
+//Notifications
 @interface NCNotificationShortLookViewController : UIViewController
 @property (nonatomic,readonly) UIView * viewForPreview;
 @property (nonatomic, weak) id delegate;
@@ -136,8 +133,7 @@ static BOOL isEnabled;
 @interface _MTBackdropView : MTMaterialView
 @end
 
-// 			NOTIFICATION PREFS 			//
-
+//Notification specific prefs 
 static BOOL notifsEnabled;
 
 static int location;
@@ -155,9 +151,7 @@ static BOOL hideChargingIndicator = NO;
 static BOOL axonInstalled = NO;
 
 
-
-// 			WIDGETS 			//
-
+// Widgets
 @interface WGWidgetHostingViewController : UIViewController
 @end
 
@@ -178,8 +172,7 @@ static BOOL axonInstalled = NO;
 @interface WGPlatterHeaderContentView : PLPlatterHeaderContentView
 @end
 
-// 			WIDGET PREFS 			//
-
+// Widget specific prefs 
 static BOOL widgetsEnabled;
 
 static CGFloat widgetTransparency;

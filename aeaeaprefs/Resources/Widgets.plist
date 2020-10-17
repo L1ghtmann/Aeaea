@@ -38,11 +38,11 @@
 			<key>cell</key>
 			<string>PSSliderCell</string>
 			<key>default</key>
-			<string>0</string>
+			<integer>0</integer>
 			<key>min</key>
-			<string>0</string>
+			<integer>0</integer>
 			<key>max</key>
-			<string>100</string>
+			<integer>100</integer>
 			<key>showValue</key>
 			<true/>
 			<key>defaults</key>
@@ -70,7 +70,7 @@
 			<key>label</key>
 			<string>ContentColor</string>
 			<key>default</key>
-			<string>0</string>
+			<integer>0</integer>
 			<key>validTitles</key>
 			<array>
 				<string>Default</string>

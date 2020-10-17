@@ -1,4 +1,4 @@
-//Header image code from (Alexa) Litten (https://github.com/Litteeen)
+//Header image code from (Alexa) Litten (https://github.com/Litteeen) -- w appropriately attached MIT license
 #include "AeaeaRootListController.h"
 #import <spawn.h>
 

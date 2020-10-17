@@ -1,4 +1,4 @@
-//Sub-prefs from (Eva) NepetaDev (https://github.com/NepetaDev)
+//Sub-prefs from (Eva) NepetaDev (https://github.com/NepetaDev) -- w appropriately attached MIT license
 #import "AeaeaSubPrefsListController.h"
 
 @implementation AeaeaSubPrefsListController
