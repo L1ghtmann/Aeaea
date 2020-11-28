@@ -10,14 +10,6 @@
             <key>label</key>
             <string></string>
         </dict>
-	    <dict>
-		 	<key>cellClass</key>
-			<string>KRTwitterCell</string>
-			<key>label</key>
-			<string>Lightmann</string>
-			<key>accountName</key>
-			<string>_lightmann</string>
-		</dict>
 		<dict>
           <key>cell</key>
             <string>PSSwitchCell</string>
