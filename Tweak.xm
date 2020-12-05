@@ -4,53 +4,42 @@
 //Made during COVID-19 
 //Aeaea
 
-%group iOS13
+#pragma mark iOS13
 
-#pragma mark Notifications
+%group Notifications_13
 
 //hides the contrasty background cell along with multiple icons showing up on LS when grouped; remains normal when ungrouped
 %hook NCNotificationListView
 -(void)setSubviewPerformingGroupingAnimation:(BOOL)arg1 {
     %orig;
 
-    if(notifsEnabled && isEnabled){
-		//if its not springboard only, do code
-		if(location != 1){
-			//even just one notif is considered a 'stack' and is "grouped", so have to dictate only if grouped and count >= 2 to avoid conflict with subsquent statement V
-			if(self.grouped && self.visibleViews.count >= 2){
+	//if its not springboard only, do code
+	if(location != 1){
+		//even just one notif is considered a 'stack' and is "grouped", so have to dictate only if grouped and count >= 2 
+		if(self.grouped && self.visibleViews.count >= 2){
+			NSArray *keys = [self.visibleViews allKeys];
+		
+			for(NSNumber *key in keys){
+				UIView *value = [self.visibleViews objectForKey:key];
+				int keyInt = [key intValue];
 
-				NSArray *keys = [self.visibleViews allKeys];
-			
-				for(NSNumber *key in keys){
-					
-					UIView *value =[self.visibleViews objectForKey:key];
-					int keyInt = [key intValue];
-
-					if(keyInt == 0){
-						[value setHidden:NO];
-					}
-
-					else{
-						[value setHidden:YES];
-					}
-				}
-			}
-			//if ungrouped or if only one notif appear normal
-			if(!self.grouped || self.visibleViews.count < 2){
-
-				NSArray *keys =[self.visibleViews allKeys];
-			
-				for(NSNumber *key in keys){
-					
-					UIView *value =[self.visibleViews objectForKey:key];
-				
+				if(keyInt == 0){
 					[value setHidden:NO];
+				}
+				else{
+					[value setHidden:YES];
 				}
 			}
 		}
 
+		//if ungrouped or if only one notif appear normal
 		else{
-			%orig;
+			NSArray *keys = [self.visibleViews allKeys];
+			
+			for(NSNumber *key in keys){	
+				UIView *value = [self.visibleViews objectForKey:key];
+				[value setHidden:NO];
+			}
 		}
 	}  
 }   
@@ -62,7 +51,7 @@
 -(void)_configureBackgroundViewIfNecessary{
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
+	if(location != 1){
 		self.backgroundView.alpha = notifTransparency / 100;
 	}
 }
@@ -71,15 +60,9 @@
 -(void)_layoutTitleLabel{
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
-		if(textcolor == 1){
-			if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-			MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:1 alpha:0.8];
-		}
-		if(textcolor == 2){
-			if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-			MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:0 alpha:0.8];
-		}
+	if(location != 1 && textcolor < 2){
+		if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
+		MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:textcolor alpha:0.8];
 	}
 }
 %end
@@ -96,7 +79,7 @@
 
 	else{
 		BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-		if(notifsEnabled && isEnabled && pos){
+		if(pos){
 			self.backgroundView.alpha = notifTransparency/100;
 		}
 	}
@@ -110,11 +93,11 @@
 	%orig;
 
 	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-	if (((notifsEnabled && isEnabled) && (axonInstalled) && (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2)) || ((location == 0) && (axonInstalled))) {
+	if ((axonInstalled && ![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2) || (location == 0 && axonInstalled)) {
 		self.hidden = YES;
 	}	
 
-	if (((!notifsEnabled && isEnabled) || (!axonInstalled)) || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1)){
+	else{
 		self.hidden = NO;
 	}
 }
@@ -126,21 +109,13 @@
 -(void)adjustForLegibilitySettingsChange:(id)arg1 {
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
+	if(location != 1 && textcolor < 2){
 		_UILegibilitySettings *customColor = [[_UILegibilitySettings alloc] initWithStyle:1];
 
-		if(textcolor == 1){
-			customColor.primaryColor = [UIColor whiteColor];
-			[self setLegibilitySettings:customColor];
-			self.titleLabel.legibilitySettings = customColor;
-			self.titleLabel.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){
-			customColor.primaryColor = [UIColor blackColor];
-			[self setLegibilitySettings:customColor];
-			self.titleLabel.legibilitySettings = customColor;
-			self.titleLabel.textColor = [UIColor blackColor];
-		}
+		customColor.primaryColor = [UIColor colorWithWhite:textcolor alpha:1];
+		[self setLegibilitySettings:customColor];
+		self.titleLabel.legibilitySettings = customColor;
+		self.titleLabel.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 	}
 }
 %end
@@ -151,7 +126,7 @@
 -(void)_configureBackgroundMaterialViewIfNecessary{
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
+	if(location != 1){
 		self.backgroundMaterialView.alpha = notifTransparency/100;
 	}
 }
@@ -160,21 +135,12 @@
 -(void)setExpanded:(BOOL)arg1 {
     %orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
-		if(textcolor == 1){
-			if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-			MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:1 alpha:0.8];
+	if(location != 1 && textcolor < 2){
+		if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
+		MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:textcolor alpha:0.8];
 				
-			if(MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters.count) MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters = nil;
-			MSHookIvar<UIImageView*>(self, "_glyphView").tintColor = [UIColor colorWithWhite:1 alpha:0.8];
-		}
-		if(textcolor == 2){
-			if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-			MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:0 alpha:0.8];
-			
-			if(MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters.count) MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters = nil;
-			MSHookIvar<UIImageView*>(self, "_glyphView").tintColor = [UIColor colorWithWhite:0 alpha:0.8];
-		}
+		if(MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters.count) MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters = nil;
+		MSHookIvar<UIImageView*>(self, "_glyphView").tintColor = [UIColor colorWithWhite:textcolor alpha:0.8];
 	}
 }
 %end
@@ -187,13 +153,8 @@
 
 	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-	if(notifsEnabled && isEnabled && pos){
-		if(textcolor == 1){		
-			self.primaryLabel.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){		
-			self.primaryLabel.textColor = [UIColor blackColor];
-		}
+	if(pos && textcolor < 2){
+		self.primaryLabel.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 	}
 }
 
@@ -202,13 +163,8 @@
 
 	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-	if(notifsEnabled && isEnabled && pos){
-		if(textcolor == 1){		
-			self.primarySubtitleLabel.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){		
-			self.primarySubtitleLabel.textColor = [UIColor blackColor];
-		}
+	if(pos && textcolor < 2){
+		self.primarySubtitleLabel.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 	}
 }
 
@@ -217,26 +173,16 @@
 
 	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-	if(notifsEnabled && isEnabled && pos){
-		if(textcolor == 1){		
-			self.secondaryLabel.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){		
-			self.secondaryLabel.textColor = [UIColor blackColor];
-		}
+	if(pos && textcolor < 2){
+		self.secondaryLabel.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 	}
 }
 											
 -(void)_updateStyleForSummaryLabel:(id)arg1 withStyle:(long long)arg2 {		
 	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-	if(notifsEnabled && isEnabled && pos){
-		if(textcolor == 1){		
-			self.summaryLabel.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){		
-			self.summaryLabel.textColor = [UIColor blackColor];
-		}
+	if(pos && textcolor < 2){
+		self.summaryLabel.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 	}
 	else{
 		%orig;
@@ -257,20 +203,15 @@
 
 		else{
 			BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-			if(notifsEnabled && isEnabled && pos) {
+			if(pos) {
 				if(hideAppName) {
 					[self.titleLabel setHidden:YES];
 				}
 
-				//neat fix from https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
-				if(textcolor == 1){
+				//if simply changing color doesn't work, check for and remove filters -- https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
+				if(textcolor < 2){
 					if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-					MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:1 alpha:0.8];
-				}
-
-				if(textcolor == 2){
-					if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-					MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:0 alpha:0.8];
+					MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:textcolor alpha:0.8];
 				}
 			}
 		}
@@ -287,20 +228,15 @@
 
 		else{
 			BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-			if(notifsEnabled && isEnabled && pos) {
+			if(pos) {
 				if(hideTimeLabel) {
 					[self.dateLabel setHidden:YES];
 				}
 
-				//neat fix from https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
-				if(textcolor == 1){
+				//if simply changing color doesn't work, check for and remove filters -- https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
+				if(textcolor < 2){
 					if(MSHookIvar<UILabel *>(self, "_dateLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_dateLabel").layer.filters = nil;
-					MSHookIvar<UILabel *>(self, "_dateLabel").textColor = [UIColor colorWithWhite:1 alpha:0.8];
-				}
-
-				if(textcolor == 2){
-					if(MSHookIvar<UILabel *>(self, "_dateLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_dateLabel").layer.filters = nil;
-					MSHookIvar<UILabel *>(self, "_dateLabel").textColor = [UIColor colorWithWhite:0 alpha:0.8];
+					MSHookIvar<UILabel *>(self, "_dateLabel").textColor = [UIColor colorWithWhite:textcolor alpha:0.8];
 				}
 			}
 		}
@@ -314,17 +250,14 @@
 -(void)adjustForLegibilitySettingsChange:(id)arg1 {
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
-		if(textcolor == 1){
-			self.legibilitySettings.primaryColor = [UIColor whiteColor];
-			self.revealHintTitle.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){
-			self.legibilitySettings.primaryColor = [UIColor blackColor];
-			self.revealHintTitle.textColor = [UIColor blackColor];
-		}
+	if(location != 1){		
 		if(hideNONT){
 			[self.revealHintTitle setHidden:YES];
+		}
+
+		if(textcolor < 2){
+			self.legibilitySettings.primaryColor = [UIColor colorWithWhite:textcolor alpha:1];
+			self.revealHintTitle.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 		}
 	}
 }
@@ -336,7 +269,7 @@
 -(void)_layoutBattery{
 	%orig;
 
-	if(notifsEnabled && isEnabled && hideChargingIndicator){
+	if(hideChargingIndicator){
 		MSHookIvar<UIView *>(self, "_batteryContainerView").hidden = YES;
 		MSHookIvar<UIView *>(self, "_batteryBlurView").hidden = YES;
 		MSHookIvar<UIView *>(self, "_batteryFillView").hidden = YES;
@@ -352,7 +285,12 @@
 }
 %end
 
-#pragma mark Widgets
+//end of notifications_13
+
+%end
+
+
+%group Widgets_13
 
 // Transparent Widgets
 %hook WGWidgetPlatterView
@@ -360,18 +298,14 @@
 -(void)_configureBackgroundMaterialViewIfNecessary{
 	%orig;
 
-	if(widgetsEnabled && isEnabled){
-		MSHookIvar<MTMaterialView *>(self, "_backgroundView").alpha = widgetTransparency/100;
-	}
+	MSHookIvar<MTMaterialView *>(self, "_backgroundView").alpha = widgetTransparency/100;
 }
 
 //Header
 -(void)_configureHeaderViewsIfNecessary{
 	%orig;
 
-	if(widgetsEnabled && isEnabled){
-		MSHookIvar<MTMaterialView *>(self, "_headerBackgroundView").alpha = widgetTransparency/100;
-	}
+	MSHookIvar<MTMaterialView *>(self, "_headerBackgroundView").alpha = widgetTransparency/100;
 }
 %end
 
@@ -381,19 +315,17 @@
 -(void)viewDidLoad{
 	%orig;
 
-	if(widgetsEnabled && isEnabled){
-		if(@available(iOS 13, *)) {
-			if(contentcolor == 0){
-				[self setOverrideUserInterfaceStyle:UIUserInterfaceStyleUnspecified];
-			}
-			if(contentcolor == 1){
-				[self setOverrideUserInterfaceStyle:UIUserInterfaceStyleDark];
-			}
-			if(contentcolor == 2){
-				[self setOverrideUserInterfaceStyle:UIUserInterfaceStyleLight];
-			}
-        }
-	}
+	if(@available(iOS 13, *)) {
+		if(contentcolor == 0){
+			[self setOverrideUserInterfaceStyle:UIUserInterfaceStyleLight];
+		}
+		else if(contentcolor == 1){
+			[self setOverrideUserInterfaceStyle:UIUserInterfaceStyleDark];
+		}
+		else{
+			[self setOverrideUserInterfaceStyle:UIUserInterfaceStyleUnspecified];
+		}
+    }
 }
 %end
 
@@ -403,9 +335,7 @@
 -(void)_configureBackgroundViewIfNecessary{
 	%orig;
 
-	if(widgetsEnabled && isEnabled){
-		MSHookIvar<MTMaterialView *>(self, "_backgroundView").alpha = widgetTransparency/100;
-	}
+	MSHookIvar<MTMaterialView *>(self, "_backgroundView").alpha = widgetTransparency/100;
 }
 %end
 
@@ -415,7 +345,7 @@
 -(void)_configureAttributedString{
 	%orig;
 
-	if(widgetsEnabled && isEnabled && hideFooterText){
+	if(hideFooterText){
 		[self setHidden:YES];
 	}
 }
@@ -427,7 +357,7 @@
 -(void)_configureTitleLabel:(id)arg1 {
 	%orig;
 
-	if(widgetsEnabled && isEnabled && hideWidgetLabel){
+	if(hideWidgetLabel){
 		[arg1 setHidden:YES];
 	}
 }
@@ -436,21 +366,20 @@
 -(void)_configureIconButtonsForIcons:(id)arg1 {
 	%orig;
 
-	if(widgetsEnabled && isEnabled && hideWidgetIcon){
+	if(hideWidgetIcon){
 		[self.iconButtons.firstObject setHidden:YES];
 	}
 }
 %end
 
-//end of iOS 13 group
+//end of widgets_13
 
 %end
 
 
+#pragma mark iOS12
 
-%group iOS12
-
-#pragma mark Notifications
+%group Notifications_12
 
 //hides the contrasty background cell along with multiple icons showing up on LS when grouped; remains normal when ungrouped
 //and yes, i know it's kinda jank, but modiying properties didn't yield favorable results
@@ -464,7 +393,7 @@
 
 	else{
 		BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-		if(notifsEnabled && isEnabled && pos) {
+		if(pos) {
 			for(UIView *view in self.subviews){
 				if ([view isMemberOfClass:%c(MTMaterialView)]) {
 					view.backgroundColor = nil;
@@ -483,7 +412,7 @@
 -(void)_configureStackedPlatters{
     %orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
+	if(location != 1){
 		for(PLPlatterView *background in MSHookIvar<NSArray *>(self, "_stackedPlatters")){
 			[background setHidden:YES];
 		}
@@ -497,7 +426,7 @@
 -(void)_layoutBackgroundView{
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
+	if(location != 1){
 		self.backgroundView.alpha = notifTransparency / 100;
 	}
 }
@@ -505,7 +434,7 @@
 -(void)_layoutBackgroundOverlayView{
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
+	if(location != 1){
 		self.backgroundOverlayView.alpha = notifTransparency / 100;
 	}
 }
@@ -514,15 +443,9 @@
 -(void)_layoutTitleLabel{
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
-		if(textcolor == 1){
-			if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-			MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:1 alpha:0.8];
-		}
-		if(textcolor == 2){
-			if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-			MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:0 alpha:0.8];
-		}
+	if(location != 1 && textcolor < 2){
+		if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
+		MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:textcolor alpha:0.8];
 	}
 }
 %end
@@ -534,11 +457,11 @@
 	%orig;
 
 	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-	if (((notifsEnabled && isEnabled) && (axonInstalled) && (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2)) || ((location == 0) && (axonInstalled))) {
+	if ((axonInstalled && ![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2) || (location == 0 && axonInstalled)) {
 		self.hidden = YES;
 	}	
 
-	if (((!notifsEnabled && isEnabled) || (!axonInstalled)) || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1)){
+	else{
 		self.hidden = NO;
 	}
 }
@@ -550,21 +473,13 @@
 -(void)adjustForLegibilitySettingsChange:(id)arg1 {	
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
+	if(location != 1 && textcolor < 2){
 		_UILegibilitySettings *customColor = [[_UILegibilitySettings alloc] initWithStyle:1];
 
-		if(textcolor == 1){
-			customColor.primaryColor = [UIColor whiteColor];
-			[self setLegibilitySettings:customColor];
-			self.titleLabel.legibilitySettings = customColor;
-			self.titleLabel.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){
-			customColor.primaryColor = [UIColor blackColor];
-			[self setLegibilitySettings:customColor];
-			self.titleLabel.legibilitySettings = customColor;
-			self.titleLabel.textColor = [UIColor blackColor];
-		}
+		customColor.primaryColor = [UIColor colorWithWhite:textcolor alpha:1];
+		[self setLegibilitySettings:customColor];
+		self.titleLabel.legibilitySettings = customColor;
+		self.titleLabel.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 	}
 }
 %end
@@ -575,7 +490,7 @@
 -(void)_configureOverlayMaterialViewIfNecessary{
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
+	if(location != 1){
 		self.overlayMaterialView.alpha = notifTransparency/100;
 	}
 }
@@ -583,7 +498,7 @@
 -(void)_configureBackgroundMaterialViewIfNecessary{
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
+	if(location != 1){
 		self.backgroundMaterialView.alpha = notifTransparency/100;
 	}
 }
@@ -592,21 +507,12 @@
 -(void)setExpanded:(BOOL)arg1 {
     %orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
-		if(textcolor == 1){
-			if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-			MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:1 alpha:0.8];
+	if(location != 1 && textcolor < 2){
+		if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
+		MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:textcolor alpha:0.8];
 				
-			if(MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters.count) MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters = nil;
-			MSHookIvar<UIImageView*>(self, "_glyphView").tintColor = [UIColor colorWithWhite:1 alpha:0.8];
-		}
-		if(textcolor == 2){
-			if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-			MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:0 alpha:0.8];
-				
-			if(MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters.count) MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters = nil;
-			MSHookIvar<UIImageView*>(self, "_glyphView").tintColor = [UIColor colorWithWhite:0 alpha:0.8];
-		}
+		if(MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters.count) MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters = nil;
+		MSHookIvar<UIImageView*>(self, "_glyphView").tintColor = [UIColor colorWithWhite:textcolor alpha:0.8];
 	}
 }
 %end
@@ -619,13 +525,8 @@
 
 	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-	if(notifsEnabled && isEnabled && pos) {
-		if(textcolor == 1){		
-			self.primaryLabel.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){		
-			self.primaryLabel.textColor = [UIColor blackColor];
-		}
+	if(pos && textcolor < 2) {
+		self.primaryLabel.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 	}
 }
 
@@ -634,13 +535,8 @@
 
 	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-	if(notifsEnabled && isEnabled && pos) {
-		if(textcolor == 1){		
-			self.primarySubtitleLabel.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){		
-			self.primarySubtitleLabel.textColor = [UIColor blackColor];
-		}
+	if(pos && textcolor < 2) {
+		self.primarySubtitleLabel.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 	}
 }
 
@@ -649,26 +545,16 @@
 
 	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-	if(notifsEnabled && isEnabled && pos) {
-		if(textcolor == 1){		
-			self.secondaryLabel.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){		
-			self.secondaryLabel.textColor = [UIColor blackColor];
-		}
+	if(pos && textcolor < 2) {
+		self.secondaryLabel.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 	}
 }
 											
 -(void)_updateStyleForSummaryLabel:(id)arg1 withStyle:(long long)arg2 {		
 	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-	if(notifsEnabled && isEnabled && pos) {
-		if(textcolor == 1){		
-			self.summaryLabel.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){		
-			self.summaryLabel.textColor = [UIColor blackColor];
-		}
+	if(pos && textcolor < 2) {
+		self.summaryLabel.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 	}
 }
 %end
@@ -686,24 +572,16 @@
 
 		else{
 			BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-			if(notifsEnabled && isEnabled && pos) {
+			if(pos) {
 				if(hideAppName) {
 					[self.titleLabel setHidden:YES];
 				}
 
-				//neat fix from https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
-				if(textcolor == 1){
+				//if simply changing color doesn't work, check for and remove filters -- https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
+				if(textcolor < 2){
 					if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-					MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:1 alpha:0.8];
+					MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:textcolor alpha:0.8];
 				}
-
-				if(textcolor == 2){
-					if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters = nil;
-					MSHookIvar<UILabel *>(self, "_titleLabel").textColor = [UIColor colorWithWhite:0 alpha:0.8];
-				}
-			}
-			else{
-				%orig;
 			}
 		}
 	}
@@ -719,24 +597,16 @@
 
 		else{
 			BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
-			if(notifsEnabled && isEnabled && pos) {
+			if(pos) {
 				if(hideTimeLabel) {
 					[self.dateLabel setHidden:YES];
 				}
 
-				//neat fix from https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
-				if(textcolor == 1){
+				//if simply changing color doesn't work, check for and remove filters -- https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
+				if(textcolor < 2){
 					if(MSHookIvar<UILabel *>(self, "_dateLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_dateLabel").layer.filters = nil;
-					MSHookIvar<UILabel *>(self, "_dateLabel").textColor = [UIColor colorWithWhite:1 alpha:0.8];
+					MSHookIvar<UILabel *>(self, "_dateLabel").textColor = [UIColor colorWithWhite:textcolor alpha:0.8];
 				}
-
-				if(textcolor == 2){
-					if(MSHookIvar<UILabel *>(self, "_dateLabel").layer.filters.count) MSHookIvar<UILabel *>(self, "_dateLabel").layer.filters = nil;
-					MSHookIvar<UILabel *>(self, "_dateLabel").textColor = [UIColor colorWithWhite:0 alpha:0.8];
-				}
-			}
-			else{
-				%orig;
 			}
 		}
 	}
@@ -749,17 +619,14 @@
 -(void)adjustForLegibilitySettingsChange:(id)arg1 {						
 	%orig;
 
-	if(notifsEnabled && isEnabled && location != 1){
-		if(textcolor == 1){
-			self.legibilitySettings.primaryColor = [UIColor whiteColor];
-			self.revealHintTitle.textColor = [UIColor whiteColor];
-		}
-		if(textcolor == 2){
-			self.legibilitySettings.primaryColor = [UIColor blackColor];
-			self.revealHintTitle.textColor = [UIColor blackColor];
-		}
+	if(location != 1){
 		if(hideNONT){
 			[self.revealHintTitle setHidden:YES];
+		}
+
+		if(textcolor < 2){
+			self.legibilitySettings.primaryColor = [UIColor colorWithWhite:textcolor alpha:1];
+			self.revealHintTitle.textColor = [UIColor colorWithWhite:textcolor alpha:1];
 		}
 	}
 }
@@ -771,7 +638,7 @@
 -(void)_layoutBattery{
 	%orig;
 
-	if(notifsEnabled && isEnabled && hideChargingIndicator){
+	if(hideChargingIndicator){
 		MSHookIvar<UIView *>(self, "_batteryContainerView").hidden = YES;
 		MSHookIvar<UIView *>(self, "_batteryBlurView").hidden = YES;
 		MSHookIvar<UIView *>(self, "_batteryFillView").hidden = YES;
@@ -787,7 +654,12 @@
 }
 %end
 
-#pragma mark Widgets
+//end of notifications_12
+
+%end
+
+
+%group Widgets_12
 
 // Transparent Widgets
 %hook WGWidgetPlatterView
@@ -795,26 +667,20 @@
 -(void)_configureMainOverlayViewIfNecessary{
 	%orig;
 
-	if(widgetsEnabled && isEnabled){
-		MSHookIvar<MTMaterialView *>(self, "_mainOverlayView").alpha = widgetTransparency/100;
-	}
+	MSHookIvar<MTMaterialView *>(self, "_mainOverlayView").alpha = widgetTransparency/100;
 }
 
 -(void)_configureBackgroundViewIfNecessary{
 	%orig;
 
-	if(widgetsEnabled && isEnabled){
-		MSHookIvar<UIView *>(self, "_backgroundView").alpha = widgetTransparency/100;
-	}
+	MSHookIvar<UIView *>(self, "_backgroundView").alpha = widgetTransparency/100;
 }
 
 //Header
 -(void)_configureHeaderOverlayViewIfNecessary{
 	%orig;
 
-	if(widgetsEnabled && isEnabled){
-		MSHookIvar<UIView *>(self, "_headerOverlayView").alpha = widgetTransparency/100;
-	}
+	MSHookIvar<UIView *>(self, "_headerOverlayView").alpha = widgetTransparency/100;
 }
 %end
 
@@ -824,9 +690,7 @@
 -(void)_configureBackgroundViewIfNecessary{
 	%orig;
 
-	if(widgetsEnabled && isEnabled){
-		MSHookIvar<MTMaterialView *>(self, "_backgroundView").alpha = widgetTransparency/100;
-	}
+	MSHookIvar<MTMaterialView *>(self, "_backgroundView").alpha = widgetTransparency/100;
 }
 %end
 
@@ -836,7 +700,7 @@
 -(void)_configureAttributedString{
 	%orig;
 
-	if(widgetsEnabled && isEnabled && hideFooterText){
+	if(hideFooterText){
 		[self setHidden:YES];
 	}
 }
@@ -848,7 +712,7 @@
 -(void)_configureTitleLabel:(id)arg1 {
 	%orig;
 
-	if(widgetsEnabled && isEnabled && [self.superview.superview isMemberOfClass:%c(WGWidgetPlatterView)] && hideWidgetLabel){
+	if([self.superview.superview isMemberOfClass:%c(WGWidgetPlatterView)] && hideWidgetLabel){
 		[arg1 setHidden:YES];
 	}
 }
@@ -857,66 +721,60 @@
 -(void)_configureIconButtonsForIcons:(id)arg1 {
 	%orig;
 	
-	if(widgetsEnabled && isEnabled && [self.superview.superview isMemberOfClass:%c(WGWidgetPlatterView)] && hideWidgetIcon){
+	if([self.superview.superview isMemberOfClass:%c(WGWidgetPlatterView)] && hideWidgetIcon){
 		[self.iconButtons.firstObject setHidden:YES];
 	}
 }
 %end
 
-//end of iOS 12 group
+//end of widgets_12
 
 %end
 
 
 
-static void loadPrefs() {
-  NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/me.lightmann.aeaeaprefs.plist"];
+//	PREFERENCES
+void preferencesChanged(){
+	NSDictionary *prefs = [[NSUserDefaults standardUserDefaults] persistentDomainForName:@"me.lightmann.aeaeaprefs"];
+	if(prefs){
+  	  	isEnabled = ([prefs objectForKey:@"isEnabled"] ? [[prefs valueForKey:@"isEnabled"] boolValue] : YES );
 
-  if(prefs){
-    isEnabled = ( [prefs objectForKey:@"isEnabled"] ? [[prefs objectForKey:@"isEnabled"] boolValue] : YES );
+		//Notifs
+		notifsEnabled = ([prefs objectForKey:@"notifsEnabled"] ? [[prefs valueForKey:@"notifsEnabled"] boolValue] : YES );
+		location = ([prefs objectForKey:@"location"] ? [[prefs valueForKey:@"location"] integerValue] : 0 );
+		notifTransparency = ([prefs objectForKey:@"notifTransparency"] ? [[prefs valueForKey:@"notifTransparency"] floatValue] : 0 );
+		textcolor = ([prefs objectForKey:@"textcolor"] ? [[prefs valueForKey:@"textcolor"] integerValue] : 2 );
+		hideAppName = ([prefs objectForKey:@"hideAppName"] ? [[prefs valueForKey:@"hideAppName"] boolValue] : NO );
+		hideTimeLabel = ([prefs objectForKey:@"hideTimeLabel"] ? [[prefs valueForKey:@"hideTimeLabel"] boolValue] : NO );
+		hideNONT = ([prefs objectForKey:@"hideNONT"] ? [[prefs valueForKey:@"hideNONT"] boolValue] : YES );
+		hideChargingIndicator = ([prefs objectForKey:@"hideChargingIndicator"] ? [[prefs valueForKey:@"hideChargingIndicator"] boolValue] : NO );
 
-	//Notifs
-	notifsEnabled = ( [prefs objectForKey:@"notifsEnabled"] ? [[prefs objectForKey:@"notifsEnabled"] boolValue] : YES );
-	location = ( [prefs valueForKey:@"location"] ? [[prefs valueForKey:@"location"] integerValue] : 0 );
-	notifTransparency = ( [prefs valueForKey:@"notifTransparency"] ? [[prefs valueForKey:@"notifTransparency"] floatValue] : 0 );
-	textcolor = ( [prefs valueForKey:@"textcolor"] ? [[prefs valueForKey:@"textcolor"] integerValue] : 0 );
-	hideAppName = ( [prefs objectForKey:@"hideAppName"] ? [[prefs objectForKey:@"hideAppName"] boolValue] : NO );
-	hideTimeLabel = ( [prefs objectForKey:@"hideTimeLabel"] ? [[prefs objectForKey:@"hideTimeLabel"] boolValue] : NO );
-	hideNONT = ( [prefs objectForKey:@"hideNONT"] ? [[prefs objectForKey:@"hideNONT"] boolValue] : YES );
-	hideChargingIndicator = ( [prefs objectForKey:@"hideChargingIndicator"] ? [[prefs objectForKey:@"hideChargingIndicator"] boolValue] : NO );
-
-	//Widgets
-	widgetsEnabled = ( [prefs objectForKey:@"widgetsEnabled"] ? [[prefs objectForKey:@"widgetsEnabled"] boolValue] : YES );
-	widgetTransparency = ( [prefs valueForKey:@"widgetTransparency"] ? [[prefs valueForKey:@"widgetTransparency"] floatValue] : 0 );
-	contentcolor = ( [prefs valueForKey:@"contentcolor"] ? [[prefs valueForKey:@"contentcolor"] integerValue] : 0 );
-	hideFooterText = ( [prefs objectForKey:@"hideFooterText"] ? [[prefs objectForKey:@"hideFooterText"] boolValue] : YES );
-	hideWidgetIcon = ( [prefs objectForKey:@"hideWidgetIcon"] ? [[prefs objectForKey:@"hideWidgetIcon"] boolValue] : NO );
-	hideWidgetLabel = ( [prefs objectForKey:@"hideWidgetLabel"] ? [[prefs objectForKey:@"hideWidgetLabel"] boolValue] : NO );
-  }
-}
-
-static void initPrefs() {
-  // Copy the default preferences file when the actual preference file doesn't exist
-  NSString *path = @"/User/Library/Preferences/me.lightmann.aeaeaprefs.plist";
-  NSString *pathDefault = @"/Library/PreferenceBundles/AeaeaPrefs.bundle/defaults.plist";
-  NSFileManager *fileManager = [NSFileManager defaultManager];
-  if(![fileManager fileExistsAtPath:path]) {
-    [fileManager copyItemAtPath:pathDefault toPath:path error:nil];
-  }
+		//Widgets
+		widgetsEnabled = ([prefs objectForKey:@"widgetsEnabled"] ? [[prefs valueForKey:@"widgetsEnabled"] boolValue] : YES );
+		widgetTransparency = ([prefs objectForKey:@"widgetTransparency"] ? [[prefs valueForKey:@"widgetTransparency"] floatValue] : 0 );
+		contentcolor = ([prefs objectForKey:@"contentcolor"] ? [[prefs valueForKey:@"contentcolor"] integerValue] : 2 );
+		hideFooterText = ([prefs objectForKey:@"hideFooterText"] ? [[prefs valueForKey:@"hideFooterText"] boolValue] : YES );
+		hideWidgetIcon = ([prefs objectForKey:@"hideWidgetIcon"] ? [[prefs valueForKey:@"hideWidgetIcon"] boolValue] : NO );
+		hideWidgetLabel = ([prefs objectForKey:@"hideWidgetLabel"] ? [[prefs valueForKey:@"hideWidgetLabel"] boolValue] : NO );
+	}
 }
 
 %ctor {
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)loadPrefs, CFSTR("me.lightmann.aeaeaprefs-updated"), NULL, CFNotificationSuspensionBehaviorCoalesce);
-	initPrefs();
-	loadPrefs();
+	preferencesChanged();
+
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)preferencesChanged, CFSTR("me.lightmann.aeaeaprefs-updated"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
 
 	//check if axon is installed
 	axonInstalled = [[NSFileManager defaultManager] fileExistsAtPath:@"/var/lib/dpkg/info/me.nepeta.axon.list"];
 
-	if(kCFCoreFoundationVersionNumber < 1600) {
-        %init(iOS12);
-    } 
-    else {
-        %init(iOS13);
-    }
+	if(isEnabled){
+		if(kCFCoreFoundationVersionNumber < 1600) {
+			if(notifsEnabled) %init(Notifications_12);
+			if(widgetsEnabled) %init(Widgets_12);
+		} 
+		else {
+			if(notifsEnabled) %init(Notifications_13);
+			if(widgetsEnabled) %init(Widgets_13);
+		}
+	}
 }

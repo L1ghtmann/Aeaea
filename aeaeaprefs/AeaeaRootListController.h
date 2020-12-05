@@ -1,5 +1,4 @@
 #import <Preferences/PSListController.h>
-#import <Preferences/PSSpecifier.h>
 #import <Preferences/PSControlTableCell.h>
 
 @interface AeaeaRootListController : PSListController {
