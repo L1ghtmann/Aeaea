@@ -1,5 +1,4 @@
 #import <UIKit/UIKit.h>
-#import <UserNotifications/UserNotifications.h>
 
 //Universal
 @interface UIView (Private)
@@ -12,32 +11,38 @@
 @interface PLPlatterView : UIView //and iOS 12 sub-cell
 @property (nonatomic,retain) UIView * backgroundView; //for both notifs and widgets
 @property (nonatomic,retain) MTMaterialView * mainOverlayView;  //for widgets (iOS 12 extra mtmaterialview)
+@property (nonatomic,readonly) UIView * customContentView;                                   
 @end
 
 @interface PLPlatterHeaderContentView : UIView
 @property (getter=_titleLabel, nonatomic, readonly) UILabel *titleLabel; 
 @property (getter=_dateLabel, nonatomic, readonly) UILabel *dateLabel;
-@property (nonatomic,readonly) NSArray * iconButtons; //for widgets
+@property (nonatomic,readonly) NSArray * iconButtons; 
 @end
 
-static BOOL isEnabled;
-
-
 //Notifications
+@interface PLPlatterCustomContentView : UIView
+@end
+
+@interface PLTitledPlatterView : PLPlatterView{
+	PLPlatterHeaderContentView* _headerContentView;
+}
+@end
+
+@interface NCNotificationShortLookView : PLTitledPlatterView 
+@end
+
 @interface NCNotificationShortLookViewController : UIViewController
-@property (nonatomic,readonly) UIView * viewForPreview;
+@property (nonatomic,readonly) NCNotificationShortLookView * viewForPreview;
 @property (nonatomic, weak) id delegate;
 @end
 
-@interface NCNotificationListView : UIView 
-@property (assign,getter=isGrouped,nonatomic) BOOL grouped; 
-@property (nonatomic, strong, readwrite) NSMutableDictionary * visibleViews; 
+@interface NCNotificationViewControllerView : UIView {
+	NSArray* _stackedPlatters;//contains PLPlatterViews (ONLY SUBVIEWS (STAND IN FOR SHORTLOOKVIEWS))
+}
 @end
 
-@interface NCNotificationShortLookView : PLPlatterView
-@end
-
-@interface PLPlatterCustomContentView : UIView
+@interface _MTBackdropView : MTMaterialView
 @end
 
 @interface BSUIEmojiLabelView : UIView
@@ -54,6 +59,7 @@ static BOOL isEnabled;
 
 @interface _UILegibilitySettings : NSObject
 @property (nonatomic, retain) UIColor *primaryColor;
+-(id)initWithStyle:(long long)arg1;
 @end
 
 @interface _UILegibilityView : UIView
@@ -62,12 +68,13 @@ static BOOL isEnabled;
 @property (nonatomic,retain) UIImageView * shadowImageView;  
 @end
 
-@interface _UILegibilitySettings (Private)
--(id)initWithStyle:(long long)arg1;
-@end
-
 @interface SBUILegibilityLabel : UILabel
 @property (nonatomic, retain) _UILegibilitySettings *legibilitySettings;
+@end
+
+@interface NCNotificationListView : UIView
+@property (nonatomic,retain) NSMutableDictionary * visibleViews;                                                                     
+@property (assign,getter=isGrouped,nonatomic) BOOL grouped;                                                                          
 @end
 
 @interface NCNotificationListSectionRevealHintView : UIView
@@ -125,40 +132,26 @@ static BOOL isEnabled;
 }
 @end
 
-@interface NCNotificationViewControllerView : UIView {
-	NSArray* _stackedPlatters;//contains PLPlatterViews (ONLY SUBVIEWS (STAND IN FOR SHORTLOOKVIEWS))
-}
-@end
-
-@interface _MTBackdropView : MTMaterialView
-@end
-
-//Notification specific prefs 
-static BOOL notifsEnabled;
-
-static int location;
-
-static CGFloat notifTransparency;
-
-static int textcolor;
-
-static BOOL hideAppName = NO;
-static BOOL hideTimeLabel = NO;
-static BOOL hideNONT;
-static BOOL hideChargingIndicator = NO;
-
-//compatibility
-static BOOL axonInstalled = NO;
-
-
 // Widgets
 @interface WGWidgetHostingViewController : UIViewController
+@end
+
+@interface WGWidgetListItemViewController : UIViewController
 @end
 
 @interface WGWidgetPlatterView : PLPlatterView {
 	MTMaterialView* _headerBackgroundView; // iOS 13
 	UIView* _headerOverlayView; // iOS 12
+	UIView* _headerContentView; //contains app icon and label
 }
+@property (setter=_setContentView:,nonatomic,retain) UIView * contentView; // iOS 13
+@property (nonatomic,readonly) UIView * customContentView; // iOS 12                                           
+@property (nonatomic,readonly) UIButton * showMoreButton; 
+@property (assign,getter=isShowingMoreContent,nonatomic) BOOL showingMoreContent;                      
+@property (assign,getter=isShowMoreButtonVisible,nonatomic) BOOL showMoreButtonVisible; 
+@end
+
+@interface WGPlatterHeaderContentView : PLPlatterHeaderContentView
 @end
 
 @interface WGShortLookStyleButton : UIView{
@@ -169,16 +162,37 @@ static BOOL axonInstalled = NO;
 @interface WGWidgetAttributionView : UIView
 @end
 
-@interface WGPlatterHeaderContentView : PLPlatterHeaderContentView
-@end
+//prefs
+static BOOL isEnabled;
 
-// Widget specific prefs 
+//Notification specific 
+static BOOL notifsEnabled;
+
+static int location;
+
+static CGFloat notifTransparency;
+
+static int textcolor;
+
+static BOOL hideAppIcon;
+static BOOL hideAppName;
+static BOOL hideTimeLabel;
+static BOOL slimNotif;
+static BOOL hideNONT;
+static BOOL hideChargingIndicator;
+
+//Widget specific 
 static BOOL widgetsEnabled;
 
 static CGFloat widgetTransparency;
 
 static int contentcolor;
 
+static BOOL autoExpand;
+static BOOL hideWidgetIcon;
+static BOOL hideWidgetLabel;
+// static BOOL slimWidget;
 static BOOL hideFooterText;
-static BOOL hideWidgetIcon = NO;
-static BOOL hideWidgetLabel = NO;
+
+//compatibility
+static BOOL axonInstalled;
