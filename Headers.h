@@ -177,7 +177,6 @@ static int textcolor;
 static BOOL hideAppIcon;
 static BOOL hideAppName;
 static BOOL hideTimeLabel;
-static BOOL slimNotif;
 static BOOL hideNONT;
 static BOOL hideChargingIndicator;
 
@@ -191,7 +190,6 @@ static int contentcolor;
 static BOOL autoExpand;
 static BOOL hideWidgetIcon;
 static BOOL hideWidgetLabel;
-// static BOOL slimWidget;
 static BOOL hideFooterText;
 
 //compatibility

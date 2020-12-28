@@ -2,7 +2,7 @@ Package: me.lightmann.aeaea
 Name: Aeaea
 Depends: mobilesubstrate, preferenceloader, firmware (>= 12.0)
 Conflicts: me.lightmann.transparentnotif, me.lightmann.clearwidgets
-Version: 1.0.2
+Version: 1.0.2.1
 Architecture: iphoneos-arm
 Description: Cleans up notification banners and widget platters.
 Maintainer: Lightmann

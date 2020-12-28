@@ -98,13 +98,13 @@
 		    <key>cell</key>
             <string>PSSwitchCell</string>
             <key>default</key>
-			<true/>
+			<false/>
 			<key>defaults</key>
 			<string>me.lightmann.aeaeaprefs</string>
 			<key>label</key>
-            <string>Hide "information provided by" text</string>
+            <string>Auto Expand</string>
             <key>key</key>
-            <string>hideFooterText</string>
+            <string>autoExpand</string>
             <key>PostNotification</key>
 			<string>me.lightmann.aeaeaprefs-updated</string>
         </dict>
@@ -136,31 +136,17 @@
             <key>PostNotification</key>
 			<string>me.lightmann.aeaeaprefs-updated</string>
         </dict>
-		<!-- <dict>
-		    <key>cell</key>
-            <string>PSSwitchCell</string>
-            <key>default</key>
-			<false/>
-			<key>defaults</key>
-			<string>me.lightmann.aeaeaprefs</string>
-			<key>label</key>
-            <string>Slim Widget</string>
-            <key>key</key>
-            <string>slimWidget</string>
-            <key>PostNotification</key>
-			<string>me.lightmann.aeaeaprefs-updated</string>
-        </dict> -->
 		<dict>
 		    <key>cell</key>
             <string>PSSwitchCell</string>
             <key>default</key>
-			<false/>
+			<true/>
 			<key>defaults</key>
 			<string>me.lightmann.aeaeaprefs</string>
 			<key>label</key>
-            <string>Auto Expand</string>
+            <string>Hide "information provided by" text</string>
             <key>key</key>
-            <string>autoExpand</string>
+            <string>hideFooterText</string>
             <key>PostNotification</key>
 			<string>me.lightmann.aeaeaprefs-updated</string>
         </dict>
