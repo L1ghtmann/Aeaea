@@ -9,8 +9,8 @@
 %group Notifications_12
 
 %hook NCNotificationShortLookView
-//hides the contrasty background cell along with multiple icons showing up on LS when grouped; remains normal when ungrouped
-//and yes, i know it's kinda jank, but modiying properties didn't yield favorable results
+//hides the contrasty background cell along with multiple icons showing up on LS when grouped and remains normal when ungrouped
+//and yes, I know it's kinda jank, but modiying properties didn't yield favorable results
 -(void)_configureBackgroundViewIfNecessary{										
 	%orig;
 
@@ -36,8 +36,6 @@
 -(void)_layoutNotificationContentView{	
 	%orig;
 	
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-	//prevents instant safemode when longlookview is animated (pull down animation)
    	if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
@@ -57,8 +55,6 @@
 
 //auto slim notif -- adjust shortlookview height
 -(void)setFrame:(CGRect)frame{
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-	//prevents instant safemode when longlookview is animated (pull down animation)
    	if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
@@ -110,6 +106,7 @@
 -(void)_layoutTitleLabel{
 	%orig;
 
+	//if simply changing color doesn't work, check for and remove filters -- https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
 	if(location != 1 && textcolor < 2){
 		if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) [MSHookIvar<UILabel *>(self, "_titleLabel").layer setFilters:nil];
 		[MSHookIvar<UILabel *>(self, "_titleLabel") setTextColor:[UIColor colorWithWhite:textcolor alpha:0.8]];
@@ -123,7 +120,6 @@
 -(void)didMoveToWindow{									
 	%orig;
 
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	if ((axonInstalled && ![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2) || (location == 0 && axonInstalled)){
 		[self setHidden:YES];
 	}	
@@ -190,7 +186,6 @@
 -(void)setPrimaryText:(NSString *)arg1{							
 	%orig;
 
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 	if(pos && textcolor < 2){
 		[self.primaryLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
@@ -200,7 +195,6 @@
 -(void)setPrimarySubtitleText:(NSString *)arg1{								
 	%orig;
 
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 	if(pos && textcolor < 2){
 		[self.primarySubtitleLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
@@ -210,7 +204,6 @@
 -(void)setSecondaryText:(NSString *)arg1{								
 	%orig;
 
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 	if(pos && textcolor < 2){
 		[self.secondaryLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
@@ -218,7 +211,6 @@
 }
 											
 -(void)_updateStyleForSummaryLabel:(id)arg1 withStyle:(long long)arg2{		
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 	if(pos && textcolor < 2){
 		[self.summaryLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
@@ -233,8 +225,6 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-		//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-		//prevents instant safemode when longlookview is animated (pull down animation)
    		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
@@ -244,7 +234,6 @@
 					[self.titleLabel setHidden:YES];
 				}
 
-				//if simply changing color doesn't work, check for and remove filters -- https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
 				if(textcolor < 2){
 					if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) [MSHookIvar<UILabel *>(self, "_titleLabel").layer setFilters:nil];
 					[MSHookIvar<UILabel *>(self, "_titleLabel") setTextColor:[UIColor colorWithWhite:textcolor alpha:0.8]];
@@ -258,8 +247,6 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-		//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-		//prevents instant safemode when longlookview is animated (pull down animation)
    		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
@@ -269,7 +256,6 @@
 					[self.dateLabel setHidden:YES];
 				}
 
-				//if simply changing color doesn't work, check for and remove filters -- https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
 				if(textcolor < 2){
 					if(MSHookIvar<UILabel *>(self, "_dateLabel").layer.filters.count) [MSHookIvar<UILabel *>(self, "_dateLabel").layer setFilters:nil];
 					[MSHookIvar<UILabel *>(self, "_dateLabel") setTextColor:[UIColor colorWithWhite:textcolor alpha:0.8]];
@@ -283,8 +269,6 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-		//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-		//prevents instant safemode when longlookview is animated (pull down animation)
    		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
@@ -483,32 +467,19 @@
 -(void)setSubviewPerformingGroupingAnimation:(BOOL)arg1{
     %orig;
 
-	//if its not springboard only, do code
+	//if its not springboard only, proceed
 	if(location != 1){
-		//even just one notif is considered a 'stack' and is "grouped", so have to dictate only if grouped and count >= 2 
-		if(self.grouped && self.visibleViews.count >= 2){
-			NSArray *keys = [self.visibleViews allKeys];
-		
-			for(NSNumber *key in keys){
-				UIView *value = [self.visibleViews objectForKey:key];
-				int keyInt = [key intValue];
-
-				if(keyInt == 0){
-					[value setHidden:NO];
-				}
-				else{
-					[value setHidden:YES];
-				}
-			}
-		}
-
-		//if ungrouped or if only one notif appear normal
-		else{
-			NSArray *keys = [self.visibleViews allKeys];
+		for(NSNumber *key in [self.visibleViews allKeys]){
+			UIView *notif = [self.visibleViews objectForKey:key];
 			
-			for(NSNumber *key in keys){	
-				UIView *value = [self.visibleViews objectForKey:key];
-				[value setHidden:NO];
+			//even just one notif is considered a 'stack' and is "grouped", so have to dictate only if grouped and count >= 2 
+			if(self.grouped && self.visibleViews.count >= 2 && [key intValue] != 0){ // object associated with first key contains the notification content
+				[notif setHidden:YES];
+			}
+
+			//if ungrouped or if only one notif is present
+			else{			
+				[notif setHidden:NO];
 			}
 		}
 	}  
@@ -543,8 +514,6 @@
 -(void)_configureBackgroundViewIfNecessary{
 	%orig;
 
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-	//prevents instant safemode when longlookview is animated (pull down animation)
 	if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
@@ -559,8 +528,6 @@
 -(void)_layoutNotificationContentView{	
 	%orig;
 	
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-	//prevents instant safemode when longlookview is animated (pull down animation)
    	if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
@@ -580,8 +547,6 @@
 
 //auto slim notif -- adjust shortlookview height
 -(void)setFrame:(CGRect)frame{
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-	//prevents instant safemode when longlookview is animated (pull down animation)
    	if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
@@ -602,7 +567,6 @@
 -(void)didMoveToWindow{								
 	%orig;
 
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	if ((axonInstalled && ![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2) || (location == 0 && axonInstalled)){
 		[self setHidden:YES];
 	}	
@@ -661,7 +625,6 @@
 -(void)setPrimaryText:(NSString *)arg1{				
 	%orig;
 
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 	if(pos && textcolor < 2){
 		[self.primaryLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
@@ -671,7 +634,6 @@
 -(void)setPrimarySubtitleText:(NSString *)arg1{			
 	%orig;
 
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 	if(pos && textcolor < 2){
 		[self.primarySubtitleLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
@@ -681,7 +643,6 @@
 -(void)setSecondaryText:(NSString *)arg1{			
 	%orig;
 
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 	if(pos && textcolor < 2){
 		[self.secondaryLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
@@ -689,7 +650,6 @@
 }
 											
 -(void)_updateStyleForSummaryLabel:(id)arg1 withStyle:(long long)arg2{		
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 	if(pos && textcolor < 2){
 		[self.summaryLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
@@ -707,8 +667,6 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-		//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-		//prevents instant safemode when longlookview is animated (pull down animation)
    		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
@@ -718,7 +676,6 @@
 					[self.titleLabel setHidden:YES];
 				}
 
-				//if simply changing color doesn't work, check for and remove filters -- https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
 				if(textcolor < 2){
 					if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) [MSHookIvar<UILabel *>(self, "_titleLabel").layer setFilters:nil];
 					[MSHookIvar<UILabel *>(self, "_titleLabel") setTextColor:[UIColor colorWithWhite:textcolor alpha:0.8]];
@@ -732,8 +689,6 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-		//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-		//prevents instant safemode when longlookview is animated (pull down animation)
    		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
@@ -743,7 +698,6 @@
 					[self.dateLabel setHidden:YES];
 				}
 
-				//if simply changing color doesn't work, check for and remove filters -- https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
 				if(textcolor < 2){
 					if(MSHookIvar<UILabel *>(self, "_dateLabel").layer.filters.count) [MSHookIvar<UILabel *>(self, "_dateLabel").layer setFilters:nil];
 					[MSHookIvar<UILabel *>(self, "_dateLabel") setTextColor:[UIColor colorWithWhite:textcolor alpha:0.8]];
@@ -757,8 +711,6 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-		//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-		//prevents instant safemode when longlookview is animated (pull down animation)
    		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
@@ -997,13 +949,13 @@ void preferencesChanged(){
 	axonInstalled = [[NSFileManager defaultManager] fileExistsAtPath:@"/var/lib/dpkg/info/me.nepeta.axon.list"];
 
 	if(isEnabled){
-		if(kCFCoreFoundationVersionNumber < 1600){
-			if(notifsEnabled) %init(Notifications_12);
-			if(widgetsEnabled) %init(Widgets_12);
-		} 
-		else{
+		if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13")){
 			if(notifsEnabled) %init(Notifications_13);
 			if(widgetsEnabled) %init(Widgets_13);
+		} 
+		else{
+			if(notifsEnabled) %init(Notifications_12);
+			if(widgetsEnabled) %init(Widgets_12);
 		}
 	}
 }
