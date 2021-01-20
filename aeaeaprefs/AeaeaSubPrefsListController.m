@@ -38,4 +38,12 @@
     [super viewWillAppear:animated];
 }
 
+-(void)localLSNotif:(id)sender{
+    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), (CFStringRef)@"me.lightmann.aeaea/testNotif", nil, nil, true);
+}
+
+-(void)localSBNotif:(id)sender{
+    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), (CFStringRef)@"me.lightmann.aeaea/testBanner", nil, nil, true);
+}
+
 @end

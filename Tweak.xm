@@ -16,13 +16,13 @@
 
 	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
 	//prevents instant safemode when longlookview is animated (pull down animation)
-   	if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+   	if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
 		BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 		if(pos){
 			for(UIView *view in self.subviews){
-				if ([view isMemberOfClass:%c(MTMaterialView)]){
+				if([view isMemberOfClass:%c(MTMaterialView)]){
 					[view setBackgroundColor:nil];
 					[view setAlpha:notifTransparency/100];
 					[MSHookIvar<_MTBackdropView *>(view, "_backdropView") setAlpha:notifTransparency/100];
@@ -36,7 +36,7 @@
 -(void)_layoutNotificationContentView{	
 	%orig;
 	
-   	if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+   	if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
 		BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -55,7 +55,7 @@
 
 //auto slim notif -- adjust shortlookview height
 -(void)setFrame:(CGRect)frame{
-   	if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+   	if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
 		BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -120,7 +120,7 @@
 -(void)didMoveToWindow{									
 	%orig;
 
-	if ((axonInstalled && ![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2) || (location == 0 && axonInstalled)){
+	if((axonInstalled && ![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2) || (location == 0 && axonInstalled)){
 		[self setHidden:YES];
 	}	
 
@@ -225,7 +225,7 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-   		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+   		if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
 			BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -247,7 +247,7 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-   		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+   		if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
 			BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -269,7 +269,7 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-   		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+   		if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
 			BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -388,7 +388,7 @@
 }
 
 //auto slim widget -- hide showmore button
--(void)setShowMoreButtonVisible:(BOOL)visible {
+-(void)setShowMoreButtonVisible:(BOOL)visible{
 	%orig;
 
 	if(hideWidgetIcon && hideWidgetLabel && visible){
@@ -514,7 +514,7 @@
 -(void)_configureBackgroundViewIfNecessary{
 	%orig;
 
-	if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+	if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
 		BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -528,7 +528,7 @@
 -(void)_layoutNotificationContentView{	
 	%orig;
 	
-   	if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+   	if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
 		BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -547,7 +547,7 @@
 
 //auto slim notif -- adjust shortlookview height
 -(void)setFrame:(CGRect)frame{
-   	if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+   	if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
 		BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -567,7 +567,7 @@
 -(void)didMoveToWindow{								
 	%orig;
 
-	if ((axonInstalled && ![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2) || (location == 0 && axonInstalled)){
+	if((axonInstalled && ![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2) || (location == 0 && axonInstalled)){
 		[self setHidden:YES];
 	}	
 
@@ -667,7 +667,7 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-   		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+   		if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
 			BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -689,7 +689,7 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-   		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+   		if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
 			BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -711,7 +711,7 @@
 	%orig;
 
 	if(self.superview && self.superview.superview){
-   		if (![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
+   		if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 		else{
 			BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -822,7 +822,7 @@
 }
 
 //auto slim widget -- hide showmore button
--(void)setShowMoreButtonVisible:(BOOL)visible {
+-(void)setShowMoreButtonVisible:(BOOL)visible{
 	%orig;
 
 	if(hideWidgetIcon && hideWidgetLabel && visible){
@@ -912,6 +912,77 @@
 
 %end
 
+#pragma mark Test Notifs
+
+static void localLSNotif(){
+    [[%c(SBLockScreenManager) sharedInstance] lockUIFromSource:1 withOptions:nil];
+
+	BBBulletin* bulletin = [[%c(BBBulletin) alloc] init];
+	bulletin.title = @"Aeaea";
+    bulletin.message = @"Test Notification!";
+    bulletin.sectionID = @"com.apple.Preferences";
+    bulletin.bulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
+    bulletin.recordID = [[NSProcessInfo processInfo] globallyUniqueString];
+    bulletin.publisherBulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
+    bulletin.date = [NSDate new];
+    bulletin.clearable = YES;
+    bulletin.showsMessagePreview = YES;
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+		 if([bbServer respondsToSelector:@selector(publishBulletin:destinations:alwaysToLockScreen:)]){
+            dispatch_sync(__BBServerQueue, ^{
+                [bbServer publishBulletin:bulletin destinations:4 alwaysToLockScreen:YES];
+            });
+        } 
+		else if([bbServer respondsToSelector:@selector(publishBulletin:destinations:)]){
+            dispatch_sync(__BBServerQueue, ^{
+                [bbServer publishBulletin:bulletin destinations:4];
+            });
+        }
+    });
+}
+
+void localSBNotif(){
+	BBBulletin* bulletin = [[%c(BBBulletin) alloc] init];
+	bulletin.title = @"Aeaea";
+    bulletin.message = @"Test Banner!";
+    bulletin.sectionID = @"com.apple.Preferences";
+    bulletin.bulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
+    bulletin.recordID = [[NSProcessInfo processInfo] globallyUniqueString];
+    bulletin.publisherBulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
+    bulletin.date = [NSDate new];
+    bulletin.clearable = YES;
+    bulletin.showsMessagePreview = YES;
+
+    if([bbServer respondsToSelector:@selector(publishBulletin:destinations:)]){
+        dispatch_sync(__BBServerQueue, ^{
+            [bbServer publishBulletin:bulletin destinations:15];
+        });
+    } 
+}
+
+%group TestNotifs
+%hook BBServer
+- (id)initWithQueue:(id)arg1{
+    bbServer = %orig;
+    return bbServer;
+}
+
+- (id)initWithQueue:(id)arg1 dataProviderManager:(id)arg2 syncService:(id)arg3 dismissalSyncCache:(id)arg4 observerListener:(id)arg5 utilitiesListener:(id)arg6 conduitListener:(id)arg7 systemStateListener:(id)arg8 settingsListener:(id)arg9{
+    bbServer = %orig;
+    return bbServer;
+}
+
+- (void)dealloc{
+    if(bbServer == self) bbServer = nil;
+    %orig;
+}
+%end
+
+//end of test notifications group
+
+%end
+
 //	PREFERENCES
 void preferencesChanged(){
 	NSDictionary *prefs = [[NSUserDefaults standardUserDefaults] persistentDomainForName:@"me.lightmann.aeaeaprefs"];
@@ -957,5 +1028,9 @@ void preferencesChanged(){
 			if(notifsEnabled) %init(Notifications_12);
 			if(widgetsEnabled) %init(Widgets_12);
 		}
+		%init(TestNotifs);
+		
+		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)localLSNotif, CFSTR("me.lightmann.aeaea/testNotif"), NULL, (CFNotificationSuspensionBehavior)kNilOptions);
+		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)localSBNotif, CFSTR("me.lightmann.aeaea/testBanner"), NULL, (CFNotificationSuspensionBehavior)kNilOptions);
 	}
 }
