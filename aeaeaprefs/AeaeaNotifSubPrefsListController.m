@@ -1,7 +1,6 @@
-//Sub-prefs from Nepeta (https://github.com/NepetaDev) 
-#import "AeaeaSubPrefsListController.h"
+#import "AeaeaNotifSubPrefsListController.h"
 
-@implementation AeaeaSubPrefsListController
+@implementation AeaeaNotifSubPrefsListController
 
 - (NSArray *)specifiers {
     return _specifiers;
@@ -13,12 +12,6 @@
 
     _specifiers = [self loadSpecifiersFromPlistName:sub target:self];
 
-    for (PSSpecifier *specifier in _specifiers) {
-        if ([specifier.name isEqualToString:@"%SUB_NAME%"]) {
-            specifier.name = title;
-        }
-    }
-
     [self setTitle:title];
     [self.navigationItem setTitle:title];
 }
@@ -28,8 +21,8 @@
 	[super setSpecifier:specifier];
 }
 
-- (bool)shouldReloadSpecifiersOnResume {
-    return false;
+- (BOOL)shouldReloadSpecifiersOnResume {
+    return NO;
 }
 
 //tints color of Switches

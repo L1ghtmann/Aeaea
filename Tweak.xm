@@ -1,4 +1,4 @@
-#import "Headers.h"
+#import "Tweak.h"
 
 //Lightmann
 //Made during COVID-19 
@@ -524,7 +524,7 @@
 	}
 }
 
-//auto slim notif - adjust content view 
+//auto slim notif -- adjust content view 
 -(void)_layoutNotificationContentView{	
 	%orig;
 	
@@ -846,7 +846,7 @@
 %end
 
 
-//color widget contents (iOS 13 only)			
+//color widget contents (iOS 13+)			
 %hook WGWidgetHostingViewController
 -(void)viewDidLoad{
 	%orig;
@@ -919,8 +919,8 @@ static void localLSNotif(){
 
 	BBBulletin* bulletin = [[%c(BBBulletin) alloc] init];
 	bulletin.title = @"Aeaea";
-    bulletin.message = @"Test Notification!";
-    bulletin.sectionID = @"com.apple.Preferences";
+	bulletin.message = @"Test Notification!";
+    bulletin.sectionID = @"com.apple.MobileSMS"; //NOTE: on iOS 12 some bundleIDs won't post notifs to the LS (e.g., com.apple.Preferences)
     bulletin.bulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
     bulletin.recordID = [[NSProcessInfo processInfo] globallyUniqueString];
     bulletin.publisherBulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
@@ -929,20 +929,15 @@ static void localLSNotif(){
     bulletin.showsMessagePreview = YES;
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-		 if([bbServer respondsToSelector:@selector(publishBulletin:destinations:alwaysToLockScreen:)]){
-            dispatch_sync(__BBServerQueue, ^{
-                [bbServer publishBulletin:bulletin destinations:4 alwaysToLockScreen:YES];
-            });
-        } 
-		else if([bbServer respondsToSelector:@selector(publishBulletin:destinations:)]){
-            dispatch_sync(__BBServerQueue, ^{
-                [bbServer publishBulletin:bulletin destinations:4];
+		if(bbServer){
+			dispatch_sync(__BBServerQueue, ^{
+				[bbServer publishBulletin:bulletin destinations:4];
             });
         }
     });
 }
 
-void localSBNotif(){
+static void localSBNotif(){
 	BBBulletin* bulletin = [[%c(BBBulletin) alloc] init];
 	bulletin.title = @"Aeaea";
     bulletin.message = @"Test Banner!";
@@ -954,7 +949,7 @@ void localSBNotif(){
     bulletin.clearable = YES;
     bulletin.showsMessagePreview = YES;
 
-    if([bbServer respondsToSelector:@selector(publishBulletin:destinations:)]){
+	if(bbServer){
         dispatch_sync(__BBServerQueue, ^{
             [bbServer publishBulletin:bulletin destinations:15];
         });
@@ -963,17 +958,12 @@ void localSBNotif(){
 
 %group TestNotifs
 %hook BBServer
-- (id)initWithQueue:(id)arg1{
+-(id)initWithQueue:(id)arg1{
     bbServer = %orig;
     return bbServer;
 }
 
-- (id)initWithQueue:(id)arg1 dataProviderManager:(id)arg2 syncService:(id)arg3 dismissalSyncCache:(id)arg4 observerListener:(id)arg5 utilitiesListener:(id)arg6 conduitListener:(id)arg7 systemStateListener:(id)arg8 settingsListener:(id)arg9{
-    bbServer = %orig;
-    return bbServer;
-}
-
-- (void)dealloc{
+-(void)dealloc{
     if(bbServer == self) bbServer = nil;
     %orig;
 }
@@ -982,6 +972,7 @@ void localSBNotif(){
 //end of test notifications group
 
 %end
+
 
 //	PREFERENCES
 void preferencesChanged(){
@@ -1022,14 +1013,14 @@ void preferencesChanged(){
 	if(isEnabled){
 		if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13")){
 			if(notifsEnabled) %init(Notifications_13);
-			if(widgetsEnabled) %init(Widgets_13);
+			if(widgetsEnabled && !SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14")) %init(Widgets_13);
 		} 
 		else{
 			if(notifsEnabled) %init(Notifications_12);
 			if(widgetsEnabled) %init(Widgets_12);
 		}
-		%init(TestNotifs);
 		
+		%init(TestNotifs);
 		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)localLSNotif, CFSTR("me.lightmann.aeaea/testNotif"), NULL, (CFNotificationSuspensionBehavior)kNilOptions);
 		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)localSBNotif, CFSTR("me.lightmann.aeaea/testBanner"), NULL, (CFNotificationSuspensionBehavior)kNilOptions);
 	}

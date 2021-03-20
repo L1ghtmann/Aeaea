@@ -1,5 +1,5 @@
 #import <Preferences/PSListController.h>
 #import <Preferences/PSSpecifier.h>
 
-@interface AeaeaSubPrefsListController : PSListController
+@interface AeaeaNotifSubPrefsListController : PSListController
 @end

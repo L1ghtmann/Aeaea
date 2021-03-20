@@ -41,7 +41,7 @@
  			<key>label</key>
  			<string>Notifications</string>
  			<key>detail</key>
- 			<string>AeaeaSubPrefsListController</string>
+ 			<string>AeaeaNotifSubPrefsListController</string>
  			<key>AeaeaSub</key>
  			<string>Notifications</string>
  		</dict>
@@ -51,7 +51,7 @@
  			<key>label</key>
  			<string>Widgets</string>
  			<key>detail</key>
- 			<string>AeaeaSubPrefsListController</string>
+ 			<string>AeaeaWidgetSubPrefsListController</string>
  			<key>AeaeaSub</key>
  			<string>Widgets</string>
  		</dict>

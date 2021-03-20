@@ -1,4 +1,3 @@
-//Header code from Litten (https://github.com/Litteeen)
 #include "AeaeaRootListController.h"
 #import <spawn.h>
 
@@ -12,22 +11,32 @@
 	return _specifiers;
 }
 
-//sbreload > respring
+// sbreload > respring
 - (void)respring:(id)sender {
 	pid_t pid;
 	const char *args[] = {"sbreload", NULL, NULL, NULL};
 	posix_spawn(&pid, "usr/bin/sbreload", NULL, NULL, (char *const *)args, NULL);
 }
 
-//Littens's Magic
-- (void)viewDidLoad {
+- (void)viewWillAppear:(BOOL)animated {
+    // tints color of Switches
+    [[UISwitch appearanceWhenContainedInInstancesOfClasses:@[self.class]] setOnTintColor:[UIColor colorWithRed:0.984 green:0.729 blue:0.051 alpha:1.0]];
 
+    [super viewWillAppear:animated];
+
+    // make room for the header
+    CGRect frame = self.table.bounds;
+    frame.origin.y = -frame.size.height;
+}
+
+// Littens's Magic (https://github.com/schneelittchen) 
+- (void)viewDidLoad {
     [super viewDidLoad];
 
     self.headerView = [[UIView alloc] initWithFrame:CGRectMake(0,0,200,200)];
     self.headerImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0,0,200,200)];
     self.headerImageView.contentMode = UIViewContentModeScaleAspectFill;
-    self.headerImageView.image = [UIImage imageWithContentsOfFile:@"/Library/PreferenceBundles/AeaeaPrefs.bundle/Banner.png"];
+    self.headerImageView.image = [UIImage imageWithContentsOfFile:@"/Library/PreferenceBundles/AeaeaPrefs.bundle/banner.png"];
     self.headerImageView.translatesAutoresizingMaskIntoConstraints = NO;
 
     [self.headerView addSubview:self.headerImageView];
@@ -46,19 +55,7 @@
     return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-
-    //tints color of Switches
-    [[UISwitch appearanceWhenContainedInInstancesOfClasses:@[self.class]] setOnTintColor:[UIColor colorWithRed:0.984 green:0.729 blue:0.051 alpha:1.0]];
-
-    [super viewWillAppear:animated];
-
-    CGRect frame = self.table.bounds;
-    frame.origin.y = -frame.size.height;
-}
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-
     CGFloat offsetY = scrollView.contentOffset.y;
     
     if (offsetY > 0) offsetY = 0;

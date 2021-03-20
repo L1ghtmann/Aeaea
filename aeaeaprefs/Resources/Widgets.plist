@@ -8,9 +8,7 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>%SUB_NAME%</string>
-			<key>isStaticText</key>
-			<true/>
+			<string>Widgets</string>
 		</dict>
 		<dict>
           <key>cell</key>
@@ -58,7 +56,7 @@
             <key>cell</key>
             <string>PSGroupCell</string>
             <key>label</key>
-            <string>Content Color (iOS 13 only)</string>
+            <string>Content Color (iOS 13+)</string>
         </dict>
        <dict>
 			<key>cell</key>
