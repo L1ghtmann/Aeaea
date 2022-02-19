@@ -1,21 +1,28 @@
+//
+//	Tweak.xm
+//	Aeaea
+//
+//	Created by Lightmann during COVID-19
+//
+
 #import "Tweak.h"
 
-//Lightmann
-//Made during COVID-19 
-//Aeaea
+extern dispatch_queue_t __BBServerQueue;
+static BBServer* bbServer;
 
 #pragma mark iOS12
 
 %group Notifications_12
 
 %hook NCNotificationShortLookView
-//hides the contrasty background cell along with multiple icons showing up on LS when grouped and remains normal when ungrouped
-//and yes, I know it's kinda jank, but modiying properties didn't yield favorable results
--(void)_configureBackgroundViewIfNecessary{										
+// hides the contrasty background cell along with multiple icons showing up on LS when grouped and remains normal when ungrouped
+// and yes, I know it's kinda jank, but modiying properties didn't yield favorable results
+-(void)_configureBackgroundViewIfNecessary{
 	%orig;
 
-	//Banner vs Notification check taken from Nepeta's Notifica (https://github.com/Baw-Appie/Notifica/blob/master/Tweak/Tweak.xm)
-	//prevents instant safemode when longlookview is animated (pull down animation)
+	// Banner vs Notification check taken from Nepeta's Notifica (https://github.com/NepetaDev/Notifica)
+	// Fairly certain Nep gave me permission to use this w/o needing the copyright notice, but I added it anyway to be safe
+	// prevents instant safemode when longlookview is animated (pull down animation)
    	if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
@@ -32,17 +39,17 @@
 	}
 }
 
-//auto slim notif -- adjust content view 
--(void)_layoutNotificationContentView{	
+// auto slim notif -- adjust content view
+-(void)_layoutNotificationContentView{
 	%orig;
-	
+
    	if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
 		BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 		if(pos && hideAppIcon && hideAppName && hideTimeLabel){
 			UIView *header = MSHookIvar<UIView*>(self, "_headerContentView");
-			
+
 			[self.customContentView.topAnchor constraintEqualToAnchor:self.superview.topAnchor constant:-2].active = YES;
 			[self.customContentView.heightAnchor constraintEqualToConstant:self.frame.size.height].active = YES;
 			[self.customContentView.widthAnchor constraintEqualToConstant:header.frame.size.width].active = YES;
@@ -53,7 +60,7 @@
 	}
 }
 
-//auto slim notif -- adjust shortlookview height
+// auto slim notif -- adjust shortlookview height
 -(void)setFrame:(CGRect)frame{
    	if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
@@ -70,22 +77,22 @@
 %end
 
 
-//hides sub cells 
+// hides sub cells
 %hook NCNotificationViewControllerView
 -(void)_configureStackedPlatters{
-    %orig;
+	%orig;
 
 	if(location != 1){
 		for(PLPlatterView *background in MSHookIvar<NSArray *>(self, "_stackedPlatters")){
 			[background setHidden:YES];
 		}
 	}
-}   
-%end	
+}
+%end
 
 
 %hook NCNotificationListCellActionButton
-//sets transparency for background of sections in sliderview of notification banners on lockscreen 
+// sets transparency for background of sections in sliderview of notification banners on lockscreen
 -(void)_layoutBackgroundView{
 	%orig;
 
@@ -102,11 +109,11 @@
 	}
 }
 
-//sets text color for labels in sections in sliderview of notification banners on lockscreen 
+// sets text color for labels in sections in sliderview of notification banners on lockscreen
 -(void)_layoutTitleLabel{
 	%orig;
 
-	//if simply changing color doesn't work, check for and remove filters -- https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
+	// if simply changing color doesn't work, check for and remove filters -- https://gist.github.com/jakeajames/9c8890b20b69af585e66b30a501e6084
 	if(location != 1 && textcolor < 2){
 		if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) [MSHookIvar<UILabel *>(self, "_titleLabel").layer setFilters:nil];
 		[MSHookIvar<UILabel *>(self, "_titleLabel") setTextColor:[UIColor colorWithWhite:textcolor alpha:0.8]];
@@ -115,14 +122,14 @@
 %end
 
 
-//hides "Notification Center" text to prevent bug w axon where it would appear and overlap notifications
+// hides "Notification Center" text to prevent bug w axon where it would appear and overlap notifications
 %hook NCNotificationListSectionHeaderView
--(void)didMoveToWindow{									
+-(void)didMoveToWindow{
 	%orig;
 
 	if((axonInstalled && ![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2) || (location == 0 && axonInstalled)){
 		[self setHidden:YES];
-	}	
+	}
 
 	else{
 		[self setHidden:NO];
@@ -131,9 +138,9 @@
 %end
 
 
-//colors stack header titles and Notification center text
+// colors stack header titles and Notification center text
 %hook NCNotificationListHeaderTitleView
--(void)adjustForLegibilitySettingsChange:(id)arg1{	
+-(void)adjustForLegibilitySettingsChange:(id)arg1{
 	%orig;
 
 	if(location != 1 && textcolor < 2){
@@ -149,7 +156,7 @@
 
 
 %hook NCToggleControl
-//sets transparency of background of drop down arrow and x above expanded stackview on LS
+// sets transparency of background of drop down arrow and x above expanded stackview on LS
 -(void)_configureOverlayMaterialViewIfNecessary{
 	%orig;
 
@@ -166,14 +173,14 @@
 	}
 }
 
-//text color of drop down label and glyphs in expanded stacked view
+// text color of drop down label and glyphs in expanded stacked view
 -(void)setExpanded:(BOOL)arg1{
-    %orig;
+	%orig;
 
 	if(location != 1 && textcolor < 2){
 		if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) [MSHookIvar<UILabel *>(self, "_titleLabel").layer setFilters:nil];
 		[MSHookIvar<UILabel *>(self, "_titleLabel") setTextColor:[UIColor colorWithWhite:textcolor alpha:0.8]];
-				
+
 		if(MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters.count) [MSHookIvar<UIImageView*>(self, "_glyphView").layer setFilters:nil];
 		[MSHookIvar<UIImageView*>(self, "_glyphView") setTintColor:[UIColor colorWithWhite:textcolor alpha:0.8]];
 	}
@@ -181,9 +188,9 @@
 %end
 
 
-//changes text color for content 
+// changes text color for content
 %hook NCNotificationContentView
--(void)setPrimaryText:(NSString *)arg1{							
+-(void)setPrimaryText:(NSString *)arg1{
 	%orig;
 
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -192,7 +199,7 @@
 	}
 }
 
--(void)setPrimarySubtitleText:(NSString *)arg1{								
+-(void)setPrimarySubtitleText:(NSString *)arg1{
 	%orig;
 
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -201,7 +208,7 @@
 	}
 }
 
--(void)setSecondaryText:(NSString *)arg1{								
+-(void)setSecondaryText:(NSString *)arg1{
 	%orig;
 
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -209,8 +216,8 @@
 		[self.secondaryLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
 	}
 }
-											
--(void)_updateStyleForSummaryLabel:(id)arg1 withStyle:(long long)arg2{		
+
+-(void)_updateStyleForSummaryLabel:(id)arg1 withStyle:(long long)arg2{
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 	if(pos && textcolor < 2){
 		[self.summaryLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
@@ -219,9 +226,9 @@
 %end
 
 
-//hides the app name, delivery time, app icon, and colors header content 
+// hides the app name, delivery time, app icon, and colors header content
 %hook PLPlatterHeaderContentView
--(void)setTitle:(NSString *)arg1{						
+-(void)setTitle:(NSString *)arg1{
 	%orig;
 
 	if(self.superview && self.superview.superview){
@@ -243,7 +250,7 @@
 	}
 }
 
--(void)_configureDateLabel{										 
+-(void)_configureDateLabel{
 	%orig;
 
 	if(self.superview && self.superview.superview){
@@ -284,9 +291,9 @@
 %end
 
 
-//colors and hides "no older notification text"
+// colors and hides "no older notification text"
 %hook NCNotificationListSectionRevealHintView
--(void)adjustForLegibilitySettingsChange:(id)arg1{						
+-(void)adjustForLegibilitySettingsChange:(id)arg1{
 	%orig;
 
 	if(location != 1){
@@ -303,8 +310,8 @@
 %end
 
 
-//hides the charging indicator on LS (without full fade/flash)
-%hook _SBLockScreenSingleBatteryChargingView					
+// hides the charging indicator on LS (without full fade/flash)
+%hook _SBLockScreenSingleBatteryChargingView
 -(void)_layoutBattery{
 	%orig;
 
@@ -324,7 +331,7 @@
 }
 %end
 
-//end of notifications_12
+// end of notifications_12
 
 %end
 
@@ -332,14 +339,14 @@
 %group Widgets_12
 
 %hook WGWidgetPlatterView
-//transparency for body
+// transparency for body
 -(void)_configureMainOverlayViewIfNecessary{
 	%orig;
 
 	MTMaterialView *mainOverlay = MSHookIvar<MTMaterialView *>(self, "_mainOverlayView");
 	[mainOverlay setAlpha:widgetTransparency/100];
 
-	//auto slim widget -- hide weird overlay  
+	// auto slim widget -- hide weird overlay
 	if(hideWidgetIcon && hideWidgetLabel){
 		[mainOverlay setHidden:YES];
 	}
@@ -351,29 +358,29 @@
 	UIView *background = MSHookIvar<UIView *>(self, "_backgroundView");
 	[background setAlpha:widgetTransparency/100];
 
-	//auto slim widget -- adjust height of background 
+	// auto slim widget -- adjust height of background
 	if(hideWidgetIcon && hideWidgetLabel){
 		CGRect frame = background.frame;
-		frame.size.height = frame.size.height-20; //changes Y for some reason :/
-		frame.origin.y = frame.origin.y+7; //adjust accordingly 
+		frame.size.height = frame.size.height-20; // changes Y for some reason :/
+		frame.origin.y = frame.origin.y+7; // adjust accordingly
 		[background setFrame:frame];
 	}
 }
 
-//transparency for header
+// transparency for header
 -(void)_configureHeaderOverlayViewIfNecessary{
 	%orig;
 
 	UIView *headerOverlay = MSHookIvar<UIView *>(self, "_headerOverlayView");
 	[headerOverlay setAlpha:widgetTransparency/100];
 
-	//auto slim widget -- hide extra header layer
+	// auto slim widget -- hide extra header layer
 	if(hideWidgetIcon && hideWidgetLabel){
-		[headerOverlay setHidden:YES]; 
+		[headerOverlay setHidden:YES];
 	}
 }
 
-//auto slim widget -- adjust content view 
+// auto slim widget -- adjust content view
 -(void)layoutSubviews{
 	%orig;
 
@@ -387,32 +394,32 @@
 	}
 }
 
-//auto slim widget -- hide showmore button
+// auto slim widget -- hide showmore button
 -(void)setShowMoreButtonVisible:(BOOL)visible{
 	%orig;
 
 	if(hideWidgetIcon && hideWidgetLabel && visible){
-		if(self.showingMoreContent) [self.showMoreButton sendActionsForControlEvents:UIControlEventTouchUpInside]; 
-		[self.showMoreButton setAlpha:0]; 
+		if(self.showingMoreContent) [self.showMoreButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+		[self.showMoreButton setAlpha:0];
 	}
 }
 %end
 
 
-//auto-expand 
+// auto-expand
 %hook WGWidgetListItemViewController
 -(void)viewWillAppear:(BOOL)appear{
 	%orig;
 
 	WGWidgetPlatterView *platterView = (WGWidgetPlatterView*)self.view;
 	if(platterView.showMoreButtonVisible && !platterView.showingMoreContent && autoExpand){
-		[platterView.showMoreButton sendActionsForControlEvents:UIControlEventTouchUpInside]; 
+		[platterView.showMoreButton sendActionsForControlEvents:UIControlEventTouchUpInside];
 	}
 }
 %end
 
 
-//hide background of "edit" button
+// hide background of "edit" button
 %hook WGShortLookStyleButton
 -(void)_configureBackgroundViewIfNecessary{
 	%orig;
@@ -422,7 +429,7 @@
 %end
 
 
-//hides "information provided by" text 
+// hides "information provided by" text
 %hook WGWidgetAttributionView
 -(void)_configureAttributedString{
 	%orig;
@@ -435,7 +442,7 @@
 
 
 %hook PLPlatterHeaderContentView
-//hide widget title
+// hide widget title
 -(void)_configureTitleLabel:(id)arg1{
 	%orig;
 
@@ -444,17 +451,17 @@
 	}
 }
 
-//hide widget icon
+// hide widget icon
 -(void)_configureIconButtonsForIcons:(id)arg1{
 	%orig;
-	
+
 	if([self.superview.superview isMemberOfClass:%c(WGWidgetPlatterView)] && hideWidgetIcon){
 		[self.iconButtons.firstObject setHidden:YES];
 	}
 }
 %end
 
-//end of widgets_12
+// end of widgets_12
 
 %end
 
@@ -462,33 +469,33 @@
 
 %group Notifications_13
 
-//hides the contrasty background cell along with multiple icons showing up on LS when grouped; remains normal when ungrouped
+// hides the contrasty background cell along with multiple icons showing up on LS when grouped; remains normal when ungrouped
 %hook NCNotificationListView
 -(void)setSubviewPerformingGroupingAnimation:(BOOL)arg1{
-    %orig;
+	%orig;
 
-	//if its not springboard only, proceed
+	// if its not springboard only, proceed
 	if(location != 1){
 		for(NSNumber *key in [self.visibleViews allKeys]){
 			UIView *notif = [self.visibleViews objectForKey:key];
-			
-			//even just one notif is considered a 'stack' and is "grouped", so have to dictate only if grouped and count >= 2 
+
+			// even just one notif is considered a 'stack' and is "grouped", so have to dictate only if grouped and count >= 2
 			if(self.grouped && self.visibleViews.count >= 2 && [key intValue] != 0){ // object associated with first key contains the notification content
 				[notif setHidden:YES];
 			}
 
-			//if ungrouped or if only one notif is present
-			else{			
+			// if ungrouped or if only one notif is present
+			else{
 				[notif setHidden:NO];
 			}
 		}
-	}  
-}   
+	}
+}
 %end
 
 
 %hook NCNotificationListCellActionButton
-//sets transparency for background of sections in sliderview of notification banners on lockscreen 
+// sets transparency for background of sections in sliderview of notification banners on lockscreen
 -(void)_configureBackgroundViewIfNecessary{
 	%orig;
 
@@ -497,7 +504,7 @@
 	}
 }
 
-//sets text color for labels in sections in sliderview of notification banners on lockscreen 
+// sets text color for labels in sections in sliderview of notification banners on lockscreen
 -(void)_layoutTitleLabel{
 	%orig;
 
@@ -509,8 +516,8 @@
 %end
 
 
-%hook NCNotificationShortLookView						
-//changes notification transparency
+%hook NCNotificationShortLookView
+// changes notification transparency
 -(void)_configureBackgroundViewIfNecessary{
 	%orig;
 
@@ -524,35 +531,35 @@
 	}
 }
 
-//auto slim notif -- adjust content view 
--(void)_layoutNotificationContentView{	
+// auto slim notif -- adjust content view
+-(void)_layoutNotificationContentView{
 	%orig;
-	
+
    	if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
 		BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 		if(pos && hideAppIcon && hideAppName && hideTimeLabel){
 			UIView *header = MSHookIvar<UIView*>(self, "_headerContentView");
-			
+
 			CGRect frame = self.customContentView.frame;
-			frame.origin.y = frame.origin.y-25; 
+			frame.origin.y = frame.origin.y-25;
 			frame.size.height = frame.size.height+self.frame.size.height;
 			[self.customContentView setFrame:frame];
-		
+
 			[header setFrame:CGRectZero];
 		}
 	}
 }
 
-//auto slim notif -- adjust shortlookview height
+// auto slim notif -- adjust shortlookview height
 -(void)setFrame:(CGRect)frame{
    	if(![[self _viewControllerForAncestor] respondsToSelector:@selector(delegate)]) %orig;
 
 	else{
 		BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 		if(pos && hideAppIcon && hideAppName && hideTimeLabel){
-			%orig(CGRectMake(frame.origin.x,frame.origin.y,frame.size.width,frame.size.height-20)); 
+			%orig(CGRectMake(frame.origin.x,frame.origin.y,frame.size.width,frame.size.height-20));
 		}
 		else{
 			%orig;
@@ -562,14 +569,14 @@
 %end
 
 
-//hides "Notification Center" text to prevent bug w axon where it would appear and overlap notifications
+// hides "Notification Center" text to prevent bug w axon where it would appear and overlap notifications
 %hook NCNotificationListSectionHeaderView
--(void)didMoveToWindow{								
+-(void)didMoveToWindow{
 	%orig;
 
 	if((axonInstalled && ![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2) || (location == 0 && axonInstalled)){
 		[self setHidden:YES];
-	}	
+	}
 
 	else{
 		[self setHidden:NO];
@@ -578,7 +585,7 @@
 %end
 
 
-//colors stack header titles and Notification center text
+// colors stack header titles and Notification center text
 %hook NCNotificationListHeaderTitleView
 -(void)adjustForLegibilitySettingsChange:(id)arg1{
 	%orig;
@@ -596,7 +603,7 @@
 
 
 %hook NCToggleControl
-//sets transparency of background of drop down arrow and x above expanded stackview on LS
+// sets transparency of background of drop down arrow and x above expanded stackview on LS
 -(void)_configureBackgroundMaterialViewIfNecessary{
 	%orig;
 
@@ -605,14 +612,14 @@
 	}
 }
 
-//text color of drop down label and glyphs in expanded stacked view
+// text color of drop down label and glyphs in expanded stacked view
 -(void)setExpanded:(BOOL)arg1{
-    %orig;
+	%orig;
 
 	if(location != 1 && textcolor < 2){
 		if(MSHookIvar<UILabel *>(self, "_titleLabel").layer.filters.count) [MSHookIvar<UILabel *>(self, "_titleLabel").layer setFilters:nil];
 		[MSHookIvar<UILabel *>(self, "_titleLabel") setTextColor:[UIColor colorWithWhite:textcolor alpha:0.8]];
-				
+
 		if(MSHookIvar<UIImageView*>(self, "_glyphView").layer.filters.count) [MSHookIvar<UIImageView*>(self, "_glyphView").layer setFilters:nil];
 		[MSHookIvar<UIImageView*>(self, "_glyphView") setTintColor:[UIColor colorWithWhite:textcolor alpha:0.8]];
 	}
@@ -620,9 +627,9 @@
 %end
 
 
-//changes text color for content 
+// changes text color for content
 %hook NCNotificationContentView
--(void)setPrimaryText:(NSString *)arg1{				
+-(void)setPrimaryText:(NSString *)arg1{
 	%orig;
 
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -631,7 +638,7 @@
 	}
 }
 
--(void)setPrimarySubtitleText:(NSString *)arg1{			
+-(void)setPrimarySubtitleText:(NSString *)arg1{
 	%orig;
 
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -640,7 +647,7 @@
 	}
 }
 
--(void)setSecondaryText:(NSString *)arg1{			
+-(void)setSecondaryText:(NSString *)arg1{
 	%orig;
 
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
@@ -648,8 +655,8 @@
 		[self.secondaryLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
 	}
 }
-											
--(void)_updateStyleForSummaryLabel:(id)arg1 withStyle:(long long)arg2{		
+
+-(void)_updateStyleForSummaryLabel:(id)arg1 withStyle:(long long)arg2{
 	BOOL pos = (location == 0 || ([((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 1) || (![((NCNotificationShortLookViewController*)[self _viewControllerForAncestor]).delegate isKindOfClass:%c(SBNotificationBannerDestination)] && location == 2));
 	if(pos && textcolor < 2){
 		[self.summaryLabel setTextColor:[UIColor colorWithWhite:textcolor alpha:1]];
@@ -661,9 +668,9 @@
 %end
 
 
-//hides the app name, delivery time, app icon, and colors header content 
+// hides the app name, delivery time, app icon, and colors header content
 %hook PLPlatterHeaderContentView
--(void)setTitle:(NSString *)arg1{												
+-(void)setTitle:(NSString *)arg1{
 	%orig;
 
 	if(self.superview && self.superview.superview){
@@ -685,7 +692,7 @@
 	}
 }
 
--(void)_configureDateLabel{												
+-(void)_configureDateLabel{
 	%orig;
 
 	if(self.superview && self.superview.superview){
@@ -726,12 +733,12 @@
 %end
 
 
-//colors and hides "no older notification text"
+// colors and hides "no older notification text"
 %hook NCNotificationListSectionRevealHintView
 -(void)adjustForLegibilitySettingsChange:(id)arg1{
 	%orig;
 
-	if(location != 1){		
+	if(location != 1){
 		if(hideNONT){
 			[self.revealHintTitle setHidden:YES];
 		}
@@ -745,8 +752,8 @@
 %end
 
 
-//hides the charging indicator on LS (without full fade/flash)
-%hook _CSSingleBatteryChargingView					
+// hides the charging indicator on LS (without full fade/flash)
+%hook _CSSingleBatteryChargingView
 -(void)_layoutBattery{
 	%orig;
 
@@ -766,7 +773,7 @@
 }
 %end
 
-//end of notifications_13
+// end of notifications_13
 
 %end
 
@@ -774,33 +781,33 @@
 %group Widgets_13
 
 %hook WGWidgetPlatterView
-//transparency for body
+// transparency for body
 -(void)_configureBackgroundMaterialViewIfNecessary{
 	%orig;
 
 	[MSHookIvar<MTMaterialView *>(self, "_backgroundView") setAlpha:widgetTransparency/100];
 }
 
-//transparency for header
+// transparency for header
 -(void)_configureHeaderViewsIfNecessary{
 	%orig;
 
 	MTMaterialView *headerBackground = MSHookIvar<MTMaterialView *>(self, "_headerBackgroundView");
 	[headerBackground setAlpha:widgetTransparency/100];
 
-	//auto slim widget -- hide headerbackground 
+	// auto slim widget -- hide headerbackground
 	if(hideWidgetIcon && hideWidgetLabel){
 		[headerBackground setFrame:CGRectZero];
 	}
 }
 
-//auto slim widget -- adjust content view 
--(void)_layoutContentView{	
+// auto slim widget -- adjust content view
+-(void)_layoutContentView{
 	%orig;
 
 	if(hideWidgetIcon && hideWidgetLabel){
 		UIView *header = MSHookIvar<UIView*>(self, "_headerContentView");
-			
+
 		CGRect frame = self.contentView.frame;
 		frame.origin.y = frame.origin.y-35;
 		frame.size.height = frame.size.height+self.frame.size.height;
@@ -810,7 +817,7 @@
 	}
 }
 
-//auto slim widget -- adjust platterview
+// auto slim widget -- adjust platterview
 -(void)setFrame:(CGRect)frame{
 	if(hideWidgetIcon && hideWidgetLabel){
 		%orig(CGRectMake(frame.origin.x,frame.origin.y,frame.size.width,frame.size.height-40));
@@ -821,37 +828,37 @@
 	}
 }
 
-//auto slim widget -- hide showmore button
+// auto slim widget -- hide showmore button
 -(void)setShowMoreButtonVisible:(BOOL)visible{
 	%orig;
 
 	if(hideWidgetIcon && hideWidgetLabel && visible){
-		if(self.showingMoreContent) [self.showMoreButton sendActionsForControlEvents:UIControlEventTouchUpInside]; 
-		[self.showMoreButton setAlpha:0]; 
+		if(self.showingMoreContent) [self.showMoreButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+		[self.showMoreButton setAlpha:0];
 	}
 }
 %end
 
 
-//auto-expand 
+// auto-expand
 %hook WGWidgetListItemViewController
 -(void)viewWillAppear:(BOOL)appear{
 	%orig;
 
 	WGWidgetPlatterView *platterView = (WGWidgetPlatterView*)self.view;
 	if(platterView.showMoreButtonVisible && !platterView.showingMoreContent && autoExpand){
-		[platterView.showMoreButton sendActionsForControlEvents:UIControlEventTouchUpInside]; 
+		[platterView.showMoreButton sendActionsForControlEvents:UIControlEventTouchUpInside];
 	}
 }
 %end
 
 
-//color widget contents (iOS 13+)			
+// color widget contents (iOS 13+)
 %hook WGWidgetHostingViewController
 -(void)viewDidLoad{
 	%orig;
 
-	if(@available(iOS 13, *)){
+	if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13")){
 		if(contentcolor == 0){
 			[self setOverrideUserInterfaceStyle:UIUserInterfaceStyleLight];
 		}
@@ -861,12 +868,12 @@
 		else{
 			[self setOverrideUserInterfaceStyle:UIUserInterfaceStyleUnspecified];
 		}
-    }
+	}
 }
 %end
 
 
-//hide background of "edit" button
+// hide background of "edit" button
 %hook WGShortLookStyleButton
 -(void)_configureBackgroundViewIfNecessary{
 	%orig;
@@ -876,7 +883,7 @@
 %end
 
 
-//hides "information provided by" text 
+// hides "information provided by" text
 %hook WGWidgetAttributionView
 -(void)_configureAttributedString{
 	%orig;
@@ -889,7 +896,7 @@
 
 
 %hook WGPlatterHeaderContentView
-//hide widget title
+// hide widget title
 -(void)_configureTitleLabel:(id)arg1{
 	%orig;
 
@@ -898,7 +905,7 @@
 	}
 }
 
-//hide widget icon
+// hide widget icon
 -(void)_configureIconButtonsForIcons:(id)arg1{
 	%orig;
 
@@ -908,79 +915,79 @@
 }
 %end
 
-//end of widgets_13
+// end of widgets_13
 
 %end
 
 #pragma mark Test Notifs
 
 static void localLSNotif(){
-    [[%c(SBLockScreenManager) sharedInstance] lockUIFromSource:1 withOptions:nil];
+	[[%c(SBLockScreenManager) sharedInstance] lockUIFromSource:1 withOptions:nil];
 
 	BBBulletin* bulletin = [[%c(BBBulletin) alloc] init];
 	bulletin.title = @"Aeaea";
 	bulletin.message = @"Test Notification!";
-    bulletin.sectionID = @"com.apple.MobileSMS"; //NOTE: on iOS 12 some bundleIDs won't post notifs to the LS (e.g., com.apple.Preferences)
-    bulletin.bulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
-    bulletin.recordID = [[NSProcessInfo processInfo] globallyUniqueString];
-    bulletin.publisherBulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
-    bulletin.date = [NSDate new];
-    bulletin.clearable = YES;
-    bulletin.showsMessagePreview = YES;
+	bulletin.sectionID = @"com.apple.MobileSMS"; // NOTE: on iOS 12 some bundleIDs won't post notifs to the LS (e.g., com.apple.Preferences)
+	bulletin.bulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
+	bulletin.recordID = [[NSProcessInfo processInfo] globallyUniqueString];
+	bulletin.publisherBulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
+	bulletin.date = [NSDate new];
+	bulletin.clearable = YES;
+	bulletin.showsMessagePreview = YES;
 
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 		if(bbServer){
 			dispatch_sync(__BBServerQueue, ^{
 				[bbServer publishBulletin:bulletin destinations:4];
-            });
-        }
-    });
+			});
+		}
+	});
 }
 
 static void localSBNotif(){
 	BBBulletin* bulletin = [[%c(BBBulletin) alloc] init];
 	bulletin.title = @"Aeaea";
-    bulletin.message = @"Test Banner!";
-    bulletin.sectionID = @"com.apple.Preferences";
-    bulletin.bulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
-    bulletin.recordID = [[NSProcessInfo processInfo] globallyUniqueString];
-    bulletin.publisherBulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
-    bulletin.date = [NSDate new];
-    bulletin.clearable = YES;
-    bulletin.showsMessagePreview = YES;
+	bulletin.message = @"Test Banner!";
+	bulletin.sectionID = @"com.apple.Preferences";
+	bulletin.bulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
+	bulletin.recordID = [[NSProcessInfo processInfo] globallyUniqueString];
+	bulletin.publisherBulletinID = [[NSProcessInfo processInfo] globallyUniqueString];
+	bulletin.date = [NSDate new];
+	bulletin.clearable = YES;
+	bulletin.showsMessagePreview = YES;
 
 	if(bbServer){
-        dispatch_sync(__BBServerQueue, ^{
-            [bbServer publishBulletin:bulletin destinations:15];
-        });
-    } 
+		dispatch_sync(__BBServerQueue, ^{
+			[bbServer publishBulletin:bulletin destinations:15];
+		});
+	}
 }
 
 %group TestNotifs
 %hook BBServer
--(id)initWithQueue:(id)arg1{
-    bbServer = %orig;
-    return bbServer;
+-(instancetype)initWithQueue:(id)arg1{
+	bbServer = %orig;
+	return bbServer;
 }
 
 -(void)dealloc{
-    if(bbServer == self) bbServer = nil;
-    %orig;
+	if(bbServer == self) bbServer = nil;
+	%orig;
 }
 %end
 
-//end of test notifications group
+// end of test notifications group
 
 %end
 
 
-//	PREFERENCES
+// 	PREFERENCES
 void preferencesChanged(){
 	NSDictionary *prefs = [[NSUserDefaults standardUserDefaults] persistentDomainForName:@"me.lightmann.aeaeaprefs"];
 	if(prefs){
   	  	isEnabled = ([prefs objectForKey:@"isEnabled"] ? [[prefs valueForKey:@"isEnabled"] boolValue] : YES );
 
-		//Notifs
+		// Notifs
 		notifsEnabled = ([prefs objectForKey:@"notifsEnabled"] ? [[prefs valueForKey:@"notifsEnabled"] boolValue] : YES );
 		location = ([prefs objectForKey:@"location"] ? [[prefs valueForKey:@"location"] integerValue] : 0 );
 		notifTransparency = ([prefs objectForKey:@"notifTransparency"] ? [[prefs valueForKey:@"notifTransparency"] floatValue] : 0 );
@@ -991,7 +998,7 @@ void preferencesChanged(){
 		hideNONT = ([prefs objectForKey:@"hideNONT"] ? [[prefs valueForKey:@"hideNONT"] boolValue] : YES );
 		hideChargingIndicator = ([prefs objectForKey:@"hideChargingIndicator"] ? [[prefs valueForKey:@"hideChargingIndicator"] boolValue] : NO );
 
-		//Widgets
+		// Widgets
 		widgetsEnabled = ([prefs objectForKey:@"widgetsEnabled"] ? [[prefs valueForKey:@"widgetsEnabled"] boolValue] : YES );
 		widgetTransparency = ([prefs objectForKey:@"widgetTransparency"] ? [[prefs valueForKey:@"widgetTransparency"] floatValue] : 0 );
 		contentcolor = ([prefs objectForKey:@"contentcolor"] ? [[prefs valueForKey:@"contentcolor"] integerValue] : 2 );
@@ -1005,21 +1012,21 @@ void preferencesChanged(){
 %ctor{
 	preferencesChanged();
 
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)preferencesChanged, CFSTR("me.lightmann.aeaeaprefs-updated"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
-
-	//check if axon is installed
-	axonInstalled = [[NSFileManager defaultManager] fileExistsAtPath:@"/var/lib/dpkg/info/me.nepeta.axon.list"];
-
 	if(isEnabled){
+		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)preferencesChanged, CFSTR("me.lightmann.aeaeaprefs-updated"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
+
+		// check if axon is installed
+		axonInstalled = [[NSFileManager defaultManager] fileExistsAtPath:@"/var/lib/dpkg/info/me.nepeta.axon.list"];
+
 		if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13")){
 			if(notifsEnabled) %init(Notifications_13);
 			if(widgetsEnabled && !SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14")) %init(Widgets_13);
-		} 
+		}
 		else{
 			if(notifsEnabled) %init(Notifications_12);
 			if(widgetsEnabled) %init(Widgets_12);
 		}
-		
+
 		%init(TestNotifs);
 		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)localLSNotif, CFSTR("me.lightmann.aeaea/testNotif"), NULL, (CFNotificationSuspensionBehavior)kNilOptions);
 		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)localSBNotif, CFSTR("me.lightmann.aeaea/testBanner"), NULL, (CFNotificationSuspensionBehavior)kNilOptions);

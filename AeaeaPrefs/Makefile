@@ -1,5 +1,5 @@
 include $(THEOS)/makefiles/common.mk
-ARCHS = arm64 arm64e
+
 BUNDLE_NAME = AeaeaPrefs
 
 AeaeaPrefs_FILES = $(wildcard *.m)

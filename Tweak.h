@@ -1,29 +1,29 @@
 #import <UIKit/UIKit.h>
 
-//https://stackoverflow.com/a/5337804
+// https://stackoverflow.com/a/5337804
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
-//Universal
+// Universal
 @interface UIView (Private)
--(id)_viewControllerForAncestor; //used for notif position check 
+-(id)_viewControllerForAncestor; // used for notif position check
 @end
 
 @interface MTMaterialView : UIView
 @end
 
-@interface PLPlatterView : UIView //and iOS 12 sub-cell
-@property (nonatomic,retain) UIView * backgroundView; //for both notifs and widgets
-@property (nonatomic,retain) MTMaterialView * mainOverlayView;  //for widgets (iOS 12 extra mtmaterialview)
-@property (nonatomic,readonly) UIView * customContentView;                                   
+@interface PLPlatterView : UIView // and iOS 12 sub-cell
+@property (nonatomic,retain) UIView * backgroundView; // for both notifs and widgets
+@property (nonatomic,retain) MTMaterialView * mainOverlayView;  // for widgets (iOS 12 extra mtmaterialview)
+@property (nonatomic,readonly) UIView * customContentView;
 @end
 
 @interface PLPlatterHeaderContentView : UIView
-@property (getter=_titleLabel, nonatomic, readonly) UILabel *titleLabel; 
+@property (getter=_titleLabel, nonatomic, readonly) UILabel *titleLabel;
 @property (getter=_dateLabel, nonatomic, readonly) UILabel *dateLabel;
-@property (nonatomic,readonly) NSArray * iconButtons; 
+@property (nonatomic,readonly) NSArray * iconButtons;
 @end
 
-//Notifications
+// Notifications
 @interface PLPlatterCustomContentView : UIView
 @end
 
@@ -32,7 +32,7 @@
 }
 @end
 
-@interface NCNotificationShortLookView : PLTitledPlatterView 
+@interface NCNotificationShortLookView : PLTitledPlatterView
 @end
 
 @interface NCNotificationShortLookViewController : UIViewController
@@ -41,7 +41,7 @@
 @end
 
 @interface NCNotificationViewControllerView : UIView {
-	NSArray* _stackedPlatters;//contains PLPlatterViews (ONLY SUBVIEWS (STAND IN FOR SHORTLOOKVIEWS))
+	NSArray* _stackedPlatters;// contains PLPlatterViews (ONLY SUBVIEWS (STAND IN FOR SHORTLOOKVIEWS))
 }
 @end
 
@@ -53,11 +53,11 @@
 @end
 
 @interface NCNotificationContentView : UIView
-@property (setter=_setPrimaryLabel:,getter=_primaryLabel,nonatomic,retain) UILabel * primaryLabel;  
-@property (setter=_setPrimarySubtitleLabel:,getter=_primarySubtitleLabel,nonatomic,retain) UILabel * primarySubtitleLabel; 
-@property (getter=_secondaryLabel,nonatomic,readonly) UILabel * secondaryLabel;   
-@property (setter=_setSummaryLabel:,getter=_summaryLabel,nonatomic,retain) BSUIEmojiLabelView * summaryLabel;    
-@property (nonatomic,retain) UIImageView * thumbnail;  
+@property (setter=_setPrimaryLabel:,getter=_primaryLabel,nonatomic,retain) UILabel * primaryLabel;
+@property (setter=_setPrimarySubtitleLabel:,getter=_primarySubtitleLabel,nonatomic,retain) UILabel * primarySubtitleLabel;
+@property (getter=_secondaryLabel,nonatomic,readonly) UILabel * secondaryLabel;
+@property (setter=_setSummaryLabel:,getter=_summaryLabel,nonatomic,retain) BSUIEmojiLabelView * summaryLabel;
+@property (nonatomic,retain) UIImageView * thumbnail;
 @end
 
 @interface _UILegibilitySettings : NSObject
@@ -66,9 +66,9 @@
 @end
 
 @interface _UILegibilityView : UIView
-@property (nonatomic,retain) _UILegibilitySettings * settings; 
-@property (nonatomic,retain) UIImageView * imageView;        
-@property (nonatomic,retain) UIImageView * shadowImageView;  
+@property (nonatomic,retain) _UILegibilitySettings * settings;
+@property (nonatomic,retain) UIImageView * imageView;
+@property (nonatomic,retain) UIImageView * shadowImageView;
 @end
 
 @interface SBUILegibilityLabel : UILabel
@@ -76,35 +76,35 @@
 @end
 
 @interface NCNotificationListView : UIView
-@property (nonatomic,retain) NSMutableDictionary * visibleViews;                                                                     
-@property (assign,getter=isGrouped,nonatomic) BOOL grouped;                                                                          
+@property (nonatomic,retain) NSMutableDictionary * visibleViews;
+@property (assign,getter=isGrouped,nonatomic) BOOL grouped;
 @end
 
 @interface NCNotificationListSectionRevealHintView : UIView
-@property (nonatomic,retain) SBUILegibilityLabel * revealHintTitle; 
-@property (nonatomic,retain) _UILegibilitySettings * legibilitySettings;     
+@property (nonatomic,retain) SBUILegibilityLabel * revealHintTitle;
+@property (nonatomic,retain) _UILegibilitySettings * legibilitySettings;
 @end
 
 @interface NCNotificationListHeaderTitleView : UIView
-@property (nonatomic,retain) SBUILegibilityLabel * titleLabel;                               
-@property (nonatomic,retain) _UILegibilitySettings * legibilitySettings;       
+@property (nonatomic,retain) SBUILegibilityLabel * titleLabel;
+@property (nonatomic,retain) _UILegibilitySettings * legibilitySettings;
 @end
 
-@interface NCNotificationListSectionHeaderView : UIView 
-@property (nonatomic,retain) NCNotificationListHeaderTitleView * headerTitleView;     
-@property (nonatomic,retain) _UILegibilitySettings * legibilitySettings;             
+@interface NCNotificationListSectionHeaderView : UIView
+@property (nonatomic,retain) NCNotificationListHeaderTitleView * headerTitleView;
+@property (nonatomic,retain) _UILegibilitySettings * legibilitySettings;
 @end
 
 @interface NCNotificationListCellActionButton : UIView{
-    UILabel* _titleLabel; // property doesnt work for changing text color for some reason; ivar works
-}     
-@property (nonatomic,retain) MTMaterialView * backgroundView;   
-@property (nonatomic,retain) MTMaterialView * backgroundOverlayView; //extra mtmaterialview in iOS 12
+    UILabel* _titleLabel; //  property doesnt work for changing text color for some reason; ivar works
+}
+@property (nonatomic,retain) MTMaterialView * backgroundView;
+@property (nonatomic,retain) MTMaterialView * backgroundOverlayView; // extra mtmaterialview in iOS 12
 @end
 
 @interface PLGlyphControl : UIView
 @property (getter=_backgroundMaterialView,nonatomic,retain) MTMaterialView * backgroundMaterialView;
-@property (getter=_overlayMaterialView,nonatomic,retain) MTMaterialView * overlayMaterialView;    //extra mtmaterialview in iOS 12
+@property (getter=_overlayMaterialView,nonatomic,retain) MTMaterialView * overlayMaterialView;    // extra mtmaterialview in iOS 12
 @end
 
 @interface NCToggleControl : PLGlyphControl
@@ -135,7 +135,7 @@
 }
 @end
 
-// Test Notifications
+//  Test Notifications
 @interface SBLockScreenManager : NSObject
 +(id)sharedInstance;
 -(void)lockUIFromSource:(int)arg1 withOptions:(id)arg2;
@@ -159,7 +159,7 @@
 -(void)dealloc;
 @end
 
-// Widgets
+//  Widgets
 @interface WGWidgetHostingViewController : UIViewController
 @end
 
@@ -167,15 +167,15 @@
 @end
 
 @interface WGWidgetPlatterView : PLPlatterView {
-	MTMaterialView* _headerBackgroundView; // iOS 13
-	UIView* _headerOverlayView; // iOS 12
-	UIView* _headerContentView; //contains app icon and label
+	MTMaterialView* _headerBackgroundView; //  iOS 13
+	UIView* _headerOverlayView; //  iOS 12
+	UIView* _headerContentView; // contains app icon and label
 }
-@property (setter=_setContentView:,nonatomic,retain) UIView * contentView; // iOS 13
-@property (nonatomic,readonly) UIView * customContentView; // iOS 12                                           
-@property (nonatomic,readonly) UIButton * showMoreButton; 
-@property (assign,getter=isShowingMoreContent,nonatomic) BOOL showingMoreContent;                      
-@property (assign,getter=isShowMoreButtonVisible,nonatomic) BOOL showMoreButtonVisible; 
+@property (setter=_setContentView:,nonatomic,retain) UIView * contentView; //  iOS 13
+@property (nonatomic,readonly) UIView * customContentView; //  iOS 12
+@property (nonatomic,readonly) UIButton * showMoreButton;
+@property (assign,getter=isShowingMoreContent,nonatomic) BOOL showingMoreContent;
+@property (assign,getter=isShowMoreButtonVisible,nonatomic) BOOL showMoreButtonVisible;
 @end
 
 @interface WGPlatterHeaderContentView : PLPlatterHeaderContentView
@@ -189,14 +189,10 @@
 @interface WGWidgetAttributionView : UIView
 @end
 
-//Test notifs
-extern dispatch_queue_t __BBServerQueue;
-static BBServer* bbServer;
-
-//prefs
+// prefs
 static BOOL isEnabled;
 
-//Notification specific 
+// Notification specific
 static BOOL notifsEnabled;
 
 static int location;
@@ -211,7 +207,7 @@ static BOOL hideTimeLabel;
 static BOOL hideNONT;
 static BOOL hideChargingIndicator;
 
-//Widget specific 
+// Widget specific
 static BOOL widgetsEnabled;
 
 static CGFloat widgetTransparency;
@@ -223,5 +219,5 @@ static BOOL hideWidgetIcon;
 static BOOL hideWidgetLabel;
 static BOOL hideFooterText;
 
-//compatibility
+// compatibility
 static BOOL axonInstalled;
